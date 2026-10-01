@@ -1,18 +1,27 @@
 #!name = WeiboIntl
-#!desc = 微博轻享版/国际版去广告模块（基于真实抓包深度定制：传输层阻断 uve 开屏预载与 biz 商业策略，应用层精细清洗时间线与推荐）
+#!desc = 微博轻享版/国际版去广告模块（基于真实抓包深度定制：阻断第一方开屏/商业策略与第三方聚合广告联盟，精细清洗时间线）
 #!author = iab0x00, kokoryh (Optimized by Antigravity)
 #!url = https://raw.githubusercontent.com/hyq58/WeiboIntl/main/WeiboIntl.sgmodule
-#!update = 2026-09-30
+#!update = 2026-10-01
 
 [Rule]
-# 1. 传输层秒杀开屏预下载与实时开屏服务（实锤捕获 bootpreload 与 bootrealtime）
+# 1. 微博官方第一方开屏与商业广告（实锤捕获 bootpreload, bootrealtime, adimg, adstrategy, vs.biz）
 DOMAIN-SUFFIX,uve.weibo.com,REJECT
-
-# 2. 传输层秒杀商业广告策略与赞助商系统（实锤捕获 adstrategy 与 vs.biz）
 DOMAIN-SUFFIX,biz.weibo.com,REJECT
-
-# 3. 拦截友盟数据统计与设备指纹上报
 DOMAIN-SUFFIX,umeng.com,REJECT
+
+# 2. 封杀轻享版调用的第三方聚合广告兜底联盟（抓包捕获之广点通/快手/申石/趣头条/爱点击/触控等竞价SDK）
+DOMAIN-SUFFIX,gdt.qq.com,REJECT
+DOMAIN-SUFFIX,ugdtimg.com,REJECT
+DOMAIN-SUFFIX,tfogc.com,REJECT
+DOMAIN-SUFFIX,aiclk.com,REJECT
+DOMAIN-SUFFIX,shenshiads.com,REJECT
+DOMAIN-SUFFIX,qttunion.com,REJECT
+DOMAIN-SUFFIX,1sapp.com,REJECT
+DOMAIN,open.e.kuaishou.com,REJECT
+DOMAIN,api.touch-moblie.com,REJECT
+DOMAIN,s.adxvip.com,REJECT
+DOMAIN-SUFFIX,guanggao-prod.cn-shanghai.log.aliyuncs.com,REJECT
 
 [URL Rewrite]
 # 1. 搜索框默认词/推广推荐词
