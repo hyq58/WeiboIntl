@@ -1,0 +1,9 @@
+{
+  "youtube": {
+    "captionLang": "off",
+    "blockUpload": false,
+    "blockImmersive": false,
+    "blockShorts": false,
+    "debug": false
+  }
+}

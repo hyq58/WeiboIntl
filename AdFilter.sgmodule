@@ -1,0 +1,64 @@
+#!name = 个人广告过滤（微博＋YouTube）
+#!desc = 微博轻享版/国际版与 YouTube 个人过滤配置；与独立模块二选一启用。
+#!author = iab0x00, kokoryh, Antigravity, Maasea；整合维护 hyq58
+#!url = https://raw.githubusercontent.com/hyq58/WeiboIntl/main/AdFilter.sgmodule
+
+# 自动生成：修改 WeiboIntl.sgmodule 或 settings.json 后运行 node tools/build.mjs。
+# 修改说明：合并两个独立模块，去重 MITM 主机名，保留各自来源与许可边界。
+
+[Rule]
+# 微博轻享版 / 国际版
+# 1. 微博官方第一方开屏与商业广告（实锤捕获 bootpreload, bootrealtime, adimg, adstrategy, vs.biz）
+DOMAIN-SUFFIX,uve.weibo.com,REJECT
+DOMAIN-SUFFIX,biz.weibo.com,REJECT
+DOMAIN-SUFFIX,umeng.com,REJECT
+
+# 2. 封杀轻享版调用的第三方聚合广告兜底联盟（抓包捕获之广点通/快手/申石/趣头条/爱点击/触控等竞价SDK）
+DOMAIN-SUFFIX,gdt.qq.com,REJECT
+DOMAIN-SUFFIX,ugdtimg.com,REJECT
+DOMAIN-SUFFIX,tfogc.com,REJECT
+DOMAIN-SUFFIX,aiclk.com,REJECT
+DOMAIN-SUFFIX,shenshiads.com,REJECT
+DOMAIN-SUFFIX,qttunion.com,REJECT
+DOMAIN-SUFFIX,1sapp.com,REJECT
+DOMAIN,open.e.kuaishou.com,REJECT
+DOMAIN,api.touch-moblie.com,REJECT
+DOMAIN,s.adxvip.com,REJECT
+DOMAIN-SUFFIX,guanggao-prod.cn-shanghai.log.aliyuncs.com,REJECT
+
+[URL Rewrite]
+# 微博轻享版 / 国际版
+# 1. 搜索框默认词/推广推荐词
+^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?.*a=get_searching_info - reject-dict
+
+# 2. 国际版通用广告配置接口（阻断 pos=3/8/13/18 拼多多/牙黄等本地注入广告源）
+^https?:\/\/api\.weibo\.cn\/2\/ad\/ - reject-dict
+
+[Body Rewrite]
+# 微博轻享版 / 国际版
+# 1. 时间线去广告（全面覆盖热门流、关注流 friends/ 与 friends_、分组流、话题流）
+http-response-jq ^https?:\/\/api\.weibo\.cn\/2\/(statuses\/(unread_)?(hot_|friends[\/_]|container_)?timeline|groups\/timeline) 'del(.ad, .advertises, .trends) | if .statuses then .statuses |= map(select((((.promotion.type == "ad") or (.mblogtypename? | IN("广告", "廣告", "热推", "熱推", "推荐", "推薦")) or (.is_ad == true) or (.is_ad == 1) or (.card_type == 19) or (.content_auth_info.content_auth_title? | IN("广告", "廣告", "热推", "熱推")) or any(.tag_struct[]?.tag_name?; . == "广告" or . == "热推")) | not)) end | if .cards then .cards |= map(select((((.card_type == 19) or (.mblog.promotion.type == "ad") or (.mblog.mblogtypename? | IN("广告", "廣告", "热推", "熱推"))) | not)) end'
+
+# 2. 开屏广告兜底空化与插入槽位清空（全面清空 normal/search/video/hot/comment 各场景插入位置，并关闭 CYT/广点通）
+http-response-jq ^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?.*a=get_coopen_ads '.data |= . + {"ad_list":[],"pic_ad":[],"gdt_video_ad_ios":[],"display_ad":0,"ad_ios_id":null,"app_ad_ios_id":null,"reserve_ad_ios_id":"","reserve_app_ad_ios_id":"","ad_duration":604800,"ad_cd_interval":604800,"ad_type":"","spare_ad_type":"","close_cyt":1,"uve_ad_scene_insert_normal":"","uve_ad_scene_insert_search":"","uve_ad_scene_insert_video":"","uve_ad_scene_insert_hot":"","uve_ad_scene_insert_comment":""}'
+
+# 3. App 启动全局配置置零（关停 timeline/hot/search/uve 广告总开关）
+http-response-jq ^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?.*a=open_app 'if .data then .data += {"new_ad_status_timeline":0,"new_ad_status_hot":0,"new_ad_status_search":0,"uve_feed_ad":0,"uve_feed_ad_block":1,"uve_hot_ad":0,"ad_cyt_regist_enable":0} end'
+
+# 4. 趋势/发现页布局优化
+http-response-jq ^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?.*a=trends 'if .data.order then .data.order = ["search_topic"] end'
+
+# 5. 搜索话题仅剔除顶部置顶推广
+http-response-jq ^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?.*a=search_topic 'if .data.search_topic.cards[0].type == "searchtop" then del(.data.search_topic.cards[0]) end'
+
+# 6. 个人中心去除 VIP 营销卡片
+http-response-jq ^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?.*a=user_center 'if .data.cards then .data.cards[].items |= map(select(.type != "personal_vip")) | .data.cards |= map(select((.items | length) > 0)) end'
+
+[Script]
+# YouTube
+youtube.response = type=http-response,pattern=^https:\/\/youtubei\.googleapis\.com\/(youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch|log_event|config))(\?(.*))?$,requires-body=1,max-size=-1,binary-body-mode=1,script-path=https://raw.githubusercontent.com/hyq58/WeiboIntl/main/scripts/youtube.response.js,argument="{"captionLang":"off","blockUpload":false,"blockImmersive":false,"blockShorts":false,"debug":false}"
+youtube.request.init = type=http-request,pattern=^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback.+&ack.*,requires-body=1,max-size=-1,binary-body-mode=1,script-path=https://raw.githubusercontent.com/hyq58/WeiboIntl/main/scripts/youtube.request.js,argument="{"captionLang":"off"}"
+youtube.request.log_event = type=http-request,pattern=^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/log_event,requires-body=1,max-size=-1,binary-body-mode=1,script-path=https://raw.githubusercontent.com/hyq58/WeiboIntl/main/scripts/youtube.request.js
+
+[MITM]
+hostname = %APPEND% api.weibo.cn, weibointl.api.weibo.cn, *.googlevideo.com, youtubei.googleapis.com

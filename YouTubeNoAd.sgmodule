@@ -1,0 +1,16 @@
+#!name = YouTube 个人广告过滤
+#!desc = 以后台播放与播放广告过滤为重点，基于 Maasea YouTube Enhance；个人参数在 settings.json 中维护。
+#!author = Maasea；个人配置维护 hyq58
+#!url = https://raw.githubusercontent.com/hyq58/WeiboIntl/main/YouTubeNoAd.sgmodule
+
+# 修改说明：沿用上游规则，固定个人参数，将脚本下载地址改为本仓库。
+# 上游许可：Apache-2.0，见 licenses/Maasea-Apache-2.0.txt。
+# 上游脚本保留部分增强功能及运行期外部服务调用，详见 README.md。
+
+[Script]
+youtube.response = type=http-response,pattern=^https:\/\/youtubei\.googleapis\.com\/(youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|guide|account\/get_setting|get_watch|log_event|config))(\?(.*))?$,requires-body=1,max-size=-1,binary-body-mode=1,script-path=https://raw.githubusercontent.com/hyq58/WeiboIntl/main/scripts/youtube.response.js,argument="{"captionLang":"off","blockUpload":false,"blockImmersive":false,"blockShorts":false,"debug":false}"
+youtube.request.init = type=http-request,pattern=^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback.+&ack.*,requires-body=1,max-size=-1,binary-body-mode=1,script-path=https://raw.githubusercontent.com/hyq58/WeiboIntl/main/scripts/youtube.request.js,argument="{"captionLang":"off"}"
+youtube.request.log_event = type=http-request,pattern=^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/log_event,requires-body=1,max-size=-1,binary-body-mode=1,script-path=https://raw.githubusercontent.com/hyq58/WeiboIntl/main/scripts/youtube.request.js
+
+[MITM]
+hostname = %APPEND% *.googlevideo.com, youtubei.googleapis.com
