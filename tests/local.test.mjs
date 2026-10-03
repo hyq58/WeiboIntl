@@ -178,7 +178,7 @@ test('信息流过滤核心能在隔离环境运行，广告开关关闭时原�
   }
 });
 
-test('模块匹配范围与自有脚本地址，旧入口保持原样，来源文件哈希正确', async () => {
+test('模块匹配范围与自有脚本地址，YouTube 内容保持原样，来源文件哈希正确', async () => {
   const module = await readFile(new URL('../YouTubeLocal.sgmodule', import.meta.url), 'utf8');
   assert.equal(/workers\.dev/.test(module + code.request + code.response), false);
   assert.equal(/\{\{\{/.test(module), false);
@@ -194,8 +194,8 @@ test('模块匹配范围与自有脚本地址，旧入口保持原样，来源�
     assert.ok(url.startsWith('https://raw.githubusercontent.com/hyq58/WeiboIntl/main/'));
     await readFile(new URL('../' + url.split('/main/')[1], import.meta.url));
   }
-  for (const f of ['WeiboIntl.sgmodule', 'YouTubeNoAd.sgmodule', 'AdFilter.sgmodule']) {
-    sameBytes(await readFile(new URL('../' + f, import.meta.url)), execFileSync('git', ['show', 'b75db547051c9b0e22f01ca0f67cf8cf468e03e6:' + f]));
+  for (const f of ['YouTubeNoAd.sgmodule', 'YouTubeLocal.sgmodule', 'scripts/youtube.local.request.js', 'scripts/youtube.local.response.js']) {
+    sameBytes(await readFile(new URL('../' + f, import.meta.url)), execFileSync('git', ['show', '9a29f69a9be253f4125ed98a9759ed16336ddcb6:' + f]));
   }
   const source = JSON.parse(await readFile(new URL('../sources-local.json', import.meta.url), 'utf8'));
   for (const [file, hash] of Object.entries(source.sha256)) {

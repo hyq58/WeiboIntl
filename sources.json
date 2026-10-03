@@ -13,6 +13,8 @@
   "weibo": {
     "repository": "https://github.com/hyq58/WeiboIntl",
     "baselineCommit": "71675093db11c961ef75acfcf5817ab4053d0feb",
-    "sha256": "0de1670c96c95853dc363da1f5fe08c55cd7bfb40637e7b59cccb55f599957c3"
+    "sha256": "0de1670c96c95853dc363da1f5fe08c55cd7bfb40637e7b59cccb55f599957c3",
+    "currentSha256": "bc9fe323cd29ce7006c7344afa01dee44ba820c5f1d07a46a183a18a5df9fa43",
+    "changes": "2026-10-03：补齐时间线 jq 表达式缺失的两个右括号；过滤条件与接口范围保持原样。"
   }
 }
