@@ -57,41 +57,45 @@ const youtube = [
   upstream.get('MITM').join('\n').trim(), '',
 ].join('\n');
 const weibo = await read('WeiboIntl.sgmodule');
-const sources = [sections(weibo), sections(youtube)];
-const merged = [
-  '#!name = 个人广告过滤（微博＋YouTube）',
-  '#!desc = 微博轻享版/国际版与 YouTube 个人过滤配置；与独立模块二选一启用。',
-  '#!author = iab0x00, kokoryh, Antigravity, Maasea；整合维护 hyq58',
-  `#!url = ${base}/AdFilter.sgmodule`,
-  '', '# 自动生成：修改 WeiboIntl.sgmodule 或 settings.json 后运行 node tools/build.mjs。',
-  '# 修改说明：合并两个独立模块，去重 MITM 主机名，保留各自来源与许可边界。',
-  '',
-];
-const supported = ['Rule', 'URL Rewrite', 'Body Rewrite', 'Script', 'MITM'];
-for (const source of sources) {
-  for (const section of source.keys()) {
-    if (!supported.includes(section)) throw new Error(`合并器尚未支持段落：${section}`);
+async function generateCombined(youtubeText, local = false) {
+  const sources = [sections(weibo), sections(youtubeText)];
+  const merged = [
+    local ? '#!name = 个人广告过滤（微博＋YouTube 本机处理版）' : '#!name = 个人广告过滤（微博＋YouTube）',
+    local ? '#!desc = 微博沿用原规则；YouTube 在小火箭本机处理，无作者 Worker 依赖。' : '#!desc = 微博轻享版/国际版与 YouTube 个人过滤配置；与独立模块二选一启用。',
+    local ? '#!author = iab0x00, kokoryh, Antigravity, Maasea, isinglever；整合维护 hyq58' : '#!author = iab0x00, kokoryh, Antigravity, Maasea；整合维护 hyq58',
+    `#!url = ${base}/${local ? 'AdFilterLocal' : 'AdFilter'}.sgmodule`,
+    '', local ? '# 自动生成：修改 WeiboIntl.sgmodule 或 local-settings.json 后运行 npm run build。' : '# 自动生成：修改 WeiboIntl.sgmodule 或 settings.json 后运行 node tools/build.mjs。',
+    '# 修改说明：合并两个独立模块，去重 MITM 主机名，保留各自来源与许可边界。',
+    '',
+  ];
+  const supported = ['Rule', 'URL Rewrite', 'Body Rewrite', 'Script', 'MITM'];
+  for (const source of sources) {
+    for (const section of source.keys()) {
+      if (!supported.includes(section)) throw new Error(`合并器尚未支持段落：${section}`);
+    }
   }
-}
-for (const section of supported.filter((name) => name !== 'MITM')) {
-  const blocks = sources.map((source, index) => ({ index, text: source.get(section)?.join('\n').trim() }))
-    .filter((block) => block.text);
-  if (!blocks.length) continue;
-  merged.push(`[${section}]`);
-  for (const { index, text } of blocks) {
-    merged.push(`# ${index === 0 ? '微博轻享版 / 国际版' : 'YouTube'}`, text, '');
+  for (const section of supported.filter((name) => name !== 'MITM')) {
+    const blocks = sources.map((source, index) => ({ index, text: source.get(section)?.join('\n').trim() }))
+      .filter((block) => block.text);
+    if (!blocks.length) continue;
+    merged.push(`[${section}]`);
+    for (const { index, text } of blocks) {
+      merged.push(`# ${index === 0 ? '微博轻享版 / 国际版' : 'YouTube'}`, text, '');
+    }
   }
-}
-const hosts = new Set();
-for (const source of sources) {
-  for (const line of source.get('MITM') ?? []) {
-    if (!line.trim() || line.startsWith('#')) continue;
-    const match = line.match(/^hostname\s*=\s*%APPEND%\s*(.+)$/);
-    if (!match) throw new Error(`无法安全合并 MITM 配置：${line}`);
-    for (const host of match[1].split(',')) hosts.add(host.trim());
+  const hosts = new Set();
+  for (const source of sources) {
+    for (const line of source.get('MITM') ?? []) {
+      if (!line.trim() || line.startsWith('#')) continue;
+      const match = line.match(/^hostname\s*=\s*%APPEND%\s*(.+)$/);
+      if (!match) throw new Error(`无法安全合并 MITM 配置：${line}`);
+      for (const host of match[1].split(',')) hosts.add(host.trim());
+    }
   }
+  merged.push('[MITM]', `hostname = %APPEND% ${[...hosts].join(', ')}`, '');
+  await write(local ? 'AdFilterLocal.sgmodule' : 'AdFilter.sgmodule', merged.join('\n'));
 }
-merged.push('[MITM]', `hostname = %APPEND% ${[...hosts].join(', ')}`, '');
 await write('YouTubeNoAd.sgmodule', youtube);
-await write('AdFilter.sgmodule', merged.join('\n'));
-console.log('已生成 YouTubeNoAd.sgmodule 与 AdFilter.sgmodule。');
+await generateCombined(youtube);
+await generateCombined(await read('YouTubeLocal.sgmodule'), true);
+console.log('已生成旧版入口及 AdFilterLocal.sgmodule 本机处理版合并入口。');

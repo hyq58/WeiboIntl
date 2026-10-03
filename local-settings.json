@@ -1,0 +1,11 @@
+{
+  "youtube": {
+    "backgroundPlayback": true,
+    "blockAds": true,
+    "blockUpload": false,
+    "blockShorts": false,
+    "blockImmersive": false,
+    "captionLang": "off",
+    "debug": false
+  }
+}

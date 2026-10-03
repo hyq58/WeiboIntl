@@ -1,73 +1,89 @@
 # 个人广告过滤（微博＋YouTube）
 
-这是 hyq58 自用的 Shadowrocket 广告过滤项目，集中维护微博轻享版 / 国际版和 YouTube 的个人配置。仓库沿用 `WeiboIntl` 名称，保留原微博模块地址。
+这是 hyq58 自用的 Shadowrocket 广告过滤项目。微博轻享版 / 国际版和 YouTube 分别维护，同时提供合并入口。仓库沿用 `WeiboIntl` 名称。
 
-## 选择一个入口
+YouTube 的个人目标是 **后台播放，以及片头和播放过程中的广告过滤**。新增本机处理版：配置提取、播放响应解密、过滤、重新加密都在小火箭中运行，不再重定向到原作者的 Worker。脚本由本仓库提供，密码与压缩组件已经打包，不需要部署 VPS 服务。
+
+## 选择入口
 
 | 入口 | 内容 | 使用场景 |
 | --- | --- | --- |
-| [AdFilter.sgmodule](https://raw.githubusercontent.com/hyq58/WeiboIntl/main/AdFilter.sgmodule) | 微博＋YouTube | 希望只维护、启用一个模块 |
-| [WeiboIntl.sgmodule](https://raw.githubusercontent.com/hyq58/WeiboIntl/main/WeiboIntl.sgmodule) | 微博轻享版 / 国际版 | 单独使用微博，或单独开关、排查 |
-| [YouTubeNoAd.sgmodule](https://raw.githubusercontent.com/hyq58/WeiboIntl/main/YouTubeNoAd.sgmodule) | YouTube | 单独使用 YouTube，或单独开关、排查 |
+| [AdFilterLocal.sgmodule](https://raw.githubusercontent.com/hyq58/WeiboIntl/main/AdFilterLocal.sgmodule) | 微博＋YouTube 本机处理版 | 推荐：只启用一个合并模块 |
+| [YouTubeLocal.sgmodule](https://raw.githubusercontent.com/hyq58/WeiboIntl/main/YouTubeLocal.sgmodule) | YouTube 本机处理版 | 只需要 YouTube，或分别排查 |
+| [WeiboIntl.sgmodule](https://raw.githubusercontent.com/hyq58/WeiboIntl/main/WeiboIntl.sgmodule) | 微博轻享版 / 国际版 | 单独使用微博，原地址保留 |
 
-**选择合并模块，或选择需要的独立模块。请不要同时开启合并模块与其中的独立模块，以免重复处理同一请求。** 更新旧微博模块不会自动启用 YouTube；要一起使用，请导入合并入口。
+**合并入口与独立入口二选一。** 使用 `AdFilterLocal` 时，停用旧 `AdFilter`、旧 `YouTubeNoAd`、独立 `YouTubeLocal` 和独立微博模块，避免同一请求被重复处理。也应停用配置中其他匹配 YouTube 接口的广告重写模块。
 
-在 Shadowrocket 的模块页面添加上表中的链接并启用。响应重写需要开启 HTTPS 解密（MITM），安装并信任该客户端生成的 CA 证书。首次启用或更新后，重新打开目标 App 进行验证。
+在 Shadowrocket 的模块页面添加链接并启用。需要开启 HTTPS 解密（MITM），安装并信任小火箭生成的 CA 证书。模块附加所需主机名。首次启用或更新后，彻底退出并重新打开 YouTube，让它重新获取播放配置，再开始测试。
 
-## 当前范围与个人设置
+## 当前行为
 
-- **微博**：沿用仓库既有的轻享版 / 国际版过滤规则，包含开屏、时间线推广、部分第三方广告域名与页面净化。本次没有新增或修改微博过滤条件。部分域名阻断会作用于其他 App；这是现有规则的行为。
-- **YouTube**：以后台播放和播放过程中的广告过滤为个人使用重点。基于 Maasea 的 YouTube Enhance 模块，下载固定版本的两个请求 / 响应处理脚本，并从本仓库提供。保留上游的后台播放及广告数据处理，不隐藏上传、选段、Shorts 按钮，不启用字幕翻译。上游脚本还包含部分播放增强功能，本次没有拆分或新增这些功能。
-- **合并入口**：按段落合并两者，MITM 主机名去重。微博和 YouTube 仍分别维护。
+- **微博**：沿用原有开屏、时间线推广和部分广告域名规则，本次字节保持原样。原规则中的部分域名阻断也可能作用于其他 App。
+- **YouTube 普通接口**：移除播放器广告字段，启用后台播放；处理 `player`、`get_watch`、信息流、搜索及 Shorts 序列里的广告数据。
+- **YouTube 加密播放接口**：从已有 Google 配置响应提取客户端播放配置，在本机处理 `initplayback` 的加密 UMP 数据，再保留视频媒体分段及未涉及的协议字段。
+- **配置尚未获取或已经失配**：清理本机缓存，通过空播放初始化响应尝试让 App 回退到普通播放接口；后续由 Google 原接口补发配置，不调用第三方转换服务。
+- **遇到不支持的协议、压缩格式或损坏响应**：保留原始响应。此时可能仍有广告或后台播放未生效，需要根据实际版本再微调。
 
-`settings.json` 是 YouTube 个人参数的唯一编辑入口：
+不强制画质、下载、倍速或 JumpAhead，不隐藏上传、选段和 Shorts 按钮，不启用字幕翻译。网页及桌面客户端不属于当前验证范围；YouTube Music 仅做配置缓存隔离，未做真机验收。
 
-| 参数 | 默认值 | 含义 |
+本机播放配置只写入小火箭自己的持久化存储，不上传 GitHub、不打印密钥或播放地址。模块和脚本更新仍需要访问本仓库的 GitHub Raw；正常视频播放仍访问 Google / YouTube。
+
+## 个人微调
+
+本机版使用 `local-settings.json`，旧版继续使用 `settings.json`，两者相互独立。
+
+| 本机版参数 | 默认值 | 含义 |
 | --- | --- | --- |
-| `captionLang` | `"off"` | 关闭字幕翻译；可改为 `"zh-Hans"` |
-| `blockUpload` | `false` | 保留上传按钮 |
-| `blockImmersive` | `false` | 保留选段按钮 |
-| `blockShorts` | `false` | 保留 Shorts 按钮 |
-| `debug` | `false` | 关闭调试日志 |
+| `backgroundPlayback` | `true` | 启用后台播放字段改写 |
+| `blockAds` | `true` | 启用 YouTube 广告过滤及广告接口拦截 |
+| `debug` | `false` | 关闭调试；打开时仅记录通用失败提示 |
+| `captionLang` | `"off"` | 本机版固定关闭字幕翻译 |
+| `blockUpload` / `blockImmersive` / `blockShorts` | `false` | 本机版固定保留原生按钮 |
 
-参数会在生成时写入模块，不依赖客户端替换模板占位符。调整参数后须重新生成并发布，再在手机刷新模块。
+`blockAds` 只控制 YouTube；微博开关通过选择模块实现。上述参数写进生成模块，修改后需要构建、提交发布，并在手机上刷新模块。视频协议字段的细调在 `source/policy.js`、`source/ump.js`；微博仍在 `WeiboIntl.sgmodule` 编辑。
 
-## 维护方式
+## 自行维护
 
 ```text
-WeiboIntl.sgmodule                  微博规则源文件；旧链接持续保留
-settings.json                      YouTube 个人参数
-upstream/YouTube.Enhance.sgmodule    固定的上游模块原文
-scripts/youtube.response.js        固定的上游响应脚本
-scripts/youtube.request.js         固定的上游请求脚本
-YouTubeNoAd.sgmodule                自动生成的 YouTube 独立入口
-AdFilter.sgmodule                   自动生成的合并入口
-sources.json                       上游版本与文件校验值
-licenses/Maasea-Apache-2.0.txt       YouTube 来源许可证
+WeiboIntl.sgmodule                  微博规则源文件
+local-settings.json                本机 YouTube 个人参数
+source/request.js                  请求处理与本机配置回退
+source/response.js                 响应入口与异常回退
+source/policy.js                    播放器广告 / 后台播放字段处理
+source/ump.js                      本机 UMP 解密、过滤、重新加密
+source/wire.js                     保留未知字段的 protobuf 读写
+source/state.js                    本机配置缓存
+source/vendor/maasea.response.js    固定的 Apache 信息流过滤核心
+scripts/youtube.local.*.js         自动打包的本机运行脚本
+YouTubeLocal.sgmodule              自动生成的本机独立入口
+AdFilterLocal.sgmodule             自动生成的本机合并入口
+upstream/local-protocol/           固定的协议参考原文，不在手机加载
+sources-local.json                 固定来源、依赖版本与哈希
+NOTICE.md / licenses/              来源、改动说明与许可证
 ```
 
-修改 `WeiboIntl.sgmodule` 或 `settings.json` 后，在仓库目录运行：
+首次准备构建环境，在仓库目录运行：
 
 ```sh
-node tools/build.mjs
+npm ci
+npm run build
+npm test
 ```
 
-将源文件及生成文件一起提交到 GitHub。请不要直接编辑生成的两个模块，下次构建会覆盖它们。新增平台需要扩展合并器，本项目当前只覆盖上述两个目标。
+后续修改后运行 `npm run build` 与 `npm test`。将源码、参数、生成脚本及模块一起提交到 GitHub；不提交 `node_modules`。不要直接修改生成文件。运行脚本已包含密码与压缩组件，手机不需要 npm 或额外依赖下载。
 
-上游更新采用人工审查方式：核对变化、更新固定来源与校验值、重新生成、做客户端验证后再发布。没有自动追随上游最新脚本。
+来源与依赖版本固定，上游更新由自己审查和选择；没有自动追随作者偏好的功能更新。本机版复用许可明确的 Apache-2.0 协议资料和信息流核心，以及 MIT 密码 / 压缩库。完整来源见 [NOTICE.md](NOTICE.md)。
 
-## 来源与许可
+## 验证与回退
 
-- 微博模块继承本仓库历史版本，保留 `iab0x00`、`kokoryh`、Antigravity 的来源声明。既有微博部分未附独立开源许可证；本项目不把它重新声明为 Apache-2.0，也不宣称有额外的再分发授权。
-- YouTube 来源为 [Maasea/sgmodule](https://github.com/Maasea/sgmodule)，固定提交 `65075cdb388fc5e3094afd7e7314c67b243f3525`。上游模块原文及两个脚本保持原文，许可证见 `licenses/Maasea-Apache-2.0.txt`。个人模块的改动为固定参数、调整脚本下载地址和添加合并入口；改动说明也已写入生成模块。
-- 本次直接使用原作者模块，没有复制 iab0x00 的 YouTube 转载配置。
+自动验证覆盖普通播放器和 `get_watch`、未压缩 / gzip 加密 UMP、独立密码实现的认证与解密核对、视频媒体分段及未知字段保留、配置捕获、请求回退、异常保留、无额外网络调用、模块地址与固定来源哈希。本机脚本中没有原作者 Worker 地址。
 
-**运行时依赖**：YouTube 请求脚本的部分处理仍会访问 `init-stream.maasea.workers.dev`。脚本下载由本仓库提供，并不代表全部运行逻辑均由本仓库独立提供。
+**这些是构造样本和模拟运行环境的验证，手机上的锁屏播放、真实片头 / 中插广告和当前 App 版本兼容性仍需实际验收。** 建议依次检查：
 
-## 验证边界与回退
+1. 打开视频后锁屏、切到其他 App，确认声音连续。
+2. 观看几段较长视频，检查片头及中途广告，测试拖动进度、切换视频和恢复播放。
+3. 确认搜索、Shorts、评论、登录正常，微博检查开屏及关注 / 热门流。
 
-构建检查确认模块结构、脚本地址、参数和语法，并使用构造的播放器二进制响应验证：广告槽位被移除、后台播放字段启用、无关字段保留。这些结果不能证明当前 App 版本的广告已经过滤或锁屏播放正常。原微博说明中提及的抓包结论不视为本次重新验证的结果。
+发生异常时先停用本机模块。旧 [AdFilter.sgmodule](https://raw.githubusercontent.com/hyq58/WeiboIntl/main/AdFilter.sgmodule) 和 [YouTubeNoAd.sgmodule](https://raw.githubusercontent.com/hyq58/WeiboIntl/main/YouTubeNoAd.sgmodule) 地址与内容继续保留，可单独启用回退；旧 YouTube 版仍依赖 `init-stream.maasea.workers.dev`，并带有原作者的部分额外增强功能。
 
-手机需实际检查微博开屏 / 关注流 / 热门流。YouTube 优先验证：打开视频后锁屏或切到其他 App，确认声音持续；观看几段较长视频，检查片头及播放中广告是否出现，并检查拖动进度、切换视频和播放恢复。另确认搜索、Shorts、登录、评论等正常功能仍可用。如果合并入口异常，可停用它，启用需要的独立模块，缩小问题范围。网页和桌面客户端不在本次验证范围内。
-
-本次发布前的微博版本为提交 `71675093db11c961ef75acfcf5817ab4053d0feb`，可通过 Git 历史恢复。旧微博模块内容在本次整合中保持原样。
+本机版发布前的仓库提交为 `b75db547051c9b0e22f01ca0f67cf8cf468e03e6`；整合前的微博版本为 `71675093db11c961ef75acfcf5817ab4053d0feb`。可通过 Git 历史恢复。

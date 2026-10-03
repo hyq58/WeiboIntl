@@ -1,0 +1,34 @@
+{
+  "protocol": {
+    "repository": "https://github.com/isinglever/adguard",
+    "commit": "62ece5097026f4552f599cac0a8b5a9f4102e90e",
+    "path": "source/youtube",
+    "license": "Apache-2.0"
+  },
+  "feedCore": {
+    "repository": "https://github.com/Maasea/sgmodule",
+    "commit": "65075cdb388fc5e3094afd7e7314c67b243f3525",
+    "license": "Apache-2.0"
+  },
+  "dependencies": {
+    "@noble/ciphers": "1.3.0",
+    "@noble/hashes": "1.8.0",
+    "fflate": "0.8.2",
+    "esbuild": "0.25.10"
+  },
+  "sha256": {
+    "licenses/isinglever-Apache-2.0.txt": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+    "upstream/local-protocol/protobuf/request/onesieRequest.proto": "ead1286c6e7d9846ba4fa331b3421281631180ad94bb00e37ed9022fa7456059",
+    "upstream/local-protocol/protobuf/response/config.proto": "e808ac735d028d03f593179073acaea590ae34ff1f827e850f32ab3f5afa3e45",
+    "upstream/local-protocol/protobuf/response/player.proto": "f809937d292d054aebad1d55547660b4103230754f33e50ded5ffb6f257f6e9a",
+    "upstream/local-protocol/protobuf/response/watch.proto": "d1a281d3fea20de9a52fb3dd1d1ff34c51b429a1fceeae5e9276106c28e24a41",
+    "upstream/local-protocol/protobuf/ump/encrypted.proto": "dfdc7a0149067d6e9f28953db7f1ff8a89fa7c2cf66f685b7ccdec77cd78d5f6",
+    "upstream/local-protocol/protobuf/ump/onesieHeader.proto": "603e4bdcffc56822732742692d791a93bb629996bab6bbedc3b0db7528092dd0",
+    "upstream/local-protocol/protobuf/ump/onesieInnertubeResponse.proto": "526d4be226ab73bc81aaeabdbcd8b5d053ae4347e95b17b1463653aa5d5b6d6a",
+    "upstream/local-protocol/lib/ump.js": "3fe5333299e8b484fa5cc7b9b9ab180899c32f5ceb378ccbf797d3f583f63d4e",
+    "licenses/noble-ciphers-MIT.txt": "f36671a5487c9c5050efacb58011c37c24c55a889803cb036cf9d9a6347c1e2d",
+    "licenses/noble-hashes-MIT.txt": "4f221aee6e072336700c408c68ab3b96a3fc09f6aebe6f48f1bd99e5ef13faec",
+    "licenses/fflate-MIT.txt": "805f6cb28bb8b6d3a0badd83c93bccd9671fa01a3b4b92b7042b0743325ac243",
+    "source/vendor/maasea.response.js": "f98483d5f5017514f82502253c0db5ce2d4ffb7839887aa2cadc22666f5a7f12"
+  }
+}
