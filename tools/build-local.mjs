@@ -58,7 +58,11 @@ const youtube = [
   '#!author = Maasea, isinglever；本机整合维护 hyq58',
   `#!url = ${base}/YouTubeLocal.sgmodule`,
   '', '# 修改说明：本机密钥管理、播放流处理及个人参数；第三方来源见 NOTICE.md。',
-  '[Script]', ...scripts, '', '[MITM]',
+  '[Rule]',
+  '# 禁用 YouTube QUIC：QUIC 无法被本机 MITM 解密，播放流走 QUIC 时 initplayback 去广告失效；拒绝后回落 TCP',
+  'AND,((DOMAIN-SUFFIX,googlevideo.com),(PROTOCOL,UDP)),REJECT',
+  'AND,((DOMAIN,youtubei.googleapis.com),(PROTOCOL,UDP)),REJECT',
+  '', '[Script]', ...scripts, '', '[MITM]',
   'hostname = %APPEND% *.googlevideo.com, youtubei.googleapis.com', '',
 ].join('\n');
 await writeFile(path.join(root, 'YouTubeLocal.sgmodule'), youtube);

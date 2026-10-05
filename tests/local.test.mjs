@@ -194,7 +194,11 @@ test('模块匹配范围与自有脚本地址，YouTube 内容保持原样，来
     assert.ok(url.startsWith('https://raw.githubusercontent.com/hyq58/WeiboIntl/main/'));
     await readFile(new URL('../' + url.split('/main/')[1], import.meta.url));
   }
-  for (const f of ['YouTubeNoAd.sgmodule', 'YouTubeLocal.sgmodule', 'scripts/youtube.local.request.js', 'scripts/youtube.local.response.js']) {
+  const quicRules = ['AND,((DOMAIN-SUFFIX,googlevideo.com),(PROTOCOL,UDP)),REJECT', 'AND,((DOMAIN,youtubei.googleapis.com),(PROTOCOL,UDP)),REJECT'];
+  for (const rule of quicRules) assert.ok(module.includes(rule + '\n'), rule);
+  const withoutQuic = module.replace(/\[Rule\]\n#[^\n]*\n(?:AND,[^\n]*\n)+\n/, '');
+  sameBytes(Buffer.from(withoutQuic), execFileSync('git', ['show', '9a29f69a9be253f4125ed98a9759ed16336ddcb6:YouTubeLocal.sgmodule']));
+  for (const f of ['YouTubeNoAd.sgmodule', 'scripts/youtube.local.request.js', 'scripts/youtube.local.response.js']) {
     sameBytes(await readFile(new URL('../' + f, import.meta.url)), execFileSync('git', ['show', '9a29f69a9be253f4125ed98a9759ed16336ddcb6:' + f]));
   }
   const source = JSON.parse(await readFile(new URL('../sources-local.json', import.meta.url), 'utf8'));

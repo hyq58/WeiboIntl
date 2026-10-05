@@ -8,6 +8,9 @@
 
 [Rule]
 # 微博轻享版 / 国际版
+# 0. 禁用微博接口 QUIC：QUIC 无法被本机 MITM 解密，App 走 QUIC 时时间线去广告会间歇失效；拒绝后回落 TCP
+AND,((DOMAIN,api.weibo.cn),(PROTOCOL,UDP)),REJECT
+AND,((DOMAIN,weibointl.api.weibo.cn),(PROTOCOL,UDP)),REJECT
 # 1. 微博官方第一方开屏与商业广告（实锤捕获 bootpreload, bootrealtime, adimg, adstrategy, vs.biz）
 DOMAIN-SUFFIX,uve.weibo.com,REJECT
 DOMAIN-SUFFIX,biz.weibo.com,REJECT
