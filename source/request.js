@@ -1,3 +1,5 @@
+import { gunzipSync } from 'fflate';
+import { stripAdSignals } from './request-policy.js';
 import { decodeBase64, getBytes, normalizeBody } from './wire.js';
 import { clearConfig, platform, readConfig } from './state.js';
 
@@ -6,6 +8,19 @@ function main() {
   const name = platform($request), route = $request.url.split('?')[0];
   try {
     const options = typeof $argument === 'string' ? JSON.parse($argument) : {};
+    if (/\/youtubei\/v1\/(browse|next|player|search)$/.test(route)) {
+      if (options.blockAds === false) return $done({});
+      const raw = normalizeBody($request.body);
+      // HAR 实际请求使用 gzip；兼容运行时已解压和仍保留压缩字节两种情况。
+      const body = raw[0] === 31 && raw[1] === 139 && raw[2] === 8 ? gunzipSync(raw) : raw;
+      const changed = stripAdSignals(body);
+      if (body.length === changed.length && body.every((byte, i) => byte === changed[i])) return $done({});
+      const headers = { ...$request.headers };
+      for (const key of Object.keys(headers)) {
+        if (['content-length', 'content-encoding'].includes(key.toLowerCase())) delete headers[key];
+      }
+      return $done({ body: changed, headers });
+    }
     if (route.endsWith('/player/ad_break')) {
       if (options.blockAds === false) return $done({});
       return emptyPlayback();

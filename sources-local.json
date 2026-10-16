@@ -29,6 +29,18 @@
     "licenses/noble-ciphers-MIT.txt": "f36671a5487c9c5050efacb58011c37c24c55a889803cb036cf9d9a6347c1e2d",
     "licenses/noble-hashes-MIT.txt": "4f221aee6e072336700c408c68ab3b96a3fc09f6aebe6f48f1bd99e5ef13faec",
     "licenses/fflate-MIT.txt": "805f6cb28bb8b6d3a0badd83c93bccd9671fa01a3b4b92b7042b0743325ac243",
-    "source/vendor/maasea.response.js": "f98483d5f5017514f82502253c0db5ce2d4ffb7839887aa2cadc22666f5a7f12"
+    "source/vendor/maasea.response.js": "f98483d5f5017514f82502253c0db5ce2d4ffb7839887aa2cadc22666f5a7f12",
+    "upstream/request-signals/request-common.proto": "9f612e9387d3782615b2b179fea6d72f60fdcd73272ea0519bacd6d20ed4bfb8",
+    "upstream/request-signals/request-ad-signals.ts": "9aa55bef5c9cc469189952d87565e4c35c13f3b148d23cbfb97d8e4843573720"
+  },
+  "requestSignals": {
+    "repository": "https://github.com/isinglever/adguard",
+    "commit": "a3ed220dada526f26cc1d69b90dc3db759c19ba7",
+    "license": "Apache-2.0",
+    "paths": [
+      "protobuf/request/common.proto",
+      "src/request.ts"
+    ],
+    "adaptation": "仅移除普通请求 context.adSignalsInfo.params，保留未知字段；不引入地区、翻译或按钮改动。"
   }
 }

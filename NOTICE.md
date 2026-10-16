@@ -36,3 +36,10 @@
 ## 微博许可边界
 
 微博继承本仓库历史模块，保留 iab0x00、kokoryh、Antigravity 的来源声明。既有微博规则未附独立开源许可证，本次仅补齐时间线 jq 表达式缺失的两个右括号，过滤条件保持原样；新增 YouTube 源码的许可不覆盖或重新授权微博部分。本仓库没有把所有文件统一声明为 Apache-2.0。
+
+## 2026-10-16 请求广告信号参考
+
+参考 isinglever/adguard 提交 `a3ed220dada526f26cc1d69b90dc3db759c19ba7` 的 `source/youtube/src/request.ts` 和 `protobuf/request/common.proto`，该目录明确使用 Apache-2.0。原文保存在 `upstream/request-signals/`，哈希见 `sources-local.json`。本仓库按原始字段编辑方式重新实现，仅清空普通 browse / next / player / search 请求的 `context.adSignalsInfo.params`，保留其他已知及未知字段；不使用其地区、翻译或按钮设置。此逻辑减少广告信号，不保证服务端停止下发全部广告。
+
+
+微博同日补充由本仓库依据接口字段自行编写 jq；参考入口为 QingRex/LoonKissSurge `913ec005f544221e6c56a7d0ecec81c4b3b914bb` 的微博轻享版模块及 zmqcherish/proxy-script `1d9f51bc9a0077d81998bb503ee6158ca83faa73`。未复制其脚本或整合模块，未将不明确许可的源码纳入 Apache YouTube 源码。

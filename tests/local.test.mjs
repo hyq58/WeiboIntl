@@ -178,14 +178,17 @@ test('信息流过滤核心能在隔离环境运行，广告开关关闭时原�
   }
 });
 
-test('模块匹配范围与自有脚本地址，YouTube 内容保持原样，来源文件哈希正确', async () => {
+test('模块匹配范围、自有地址、旧版与响应脚本及来源哈希正确', async () => {
   const module = await readFile(new URL('../YouTubeLocal.sgmodule', import.meta.url), 'utf8');
   assert.equal(/workers\.dev/.test(module + code.request + code.response), false);
   assert.equal(/\{\{\{/.test(module), false);
   const rules = module.split('\n').filter(l => l.startsWith('youtube.local.')).map(line => ({
     name: line.split(' = ')[0], pattern: new RegExp(line.match(/pattern=([^,]+)/)[1]),
   }));
-  assert.equal(rules.length, 5);
+  assert.equal(rules.length, 6);
+  const signals = rules.find(rule => rule.name.endsWith('.signals')).pattern;
+  for (const path of ['browse', 'next', 'player', 'search']) assert.ok(signals.test('https://youtubei.googleapis.com/youtubei/v1/' + path + '?test=1'));
+  assert.equal(signals.test('https://youtubei.googleapis.com/youtubei/v1/player/ad_break'), false);
   for (const rule of rules) assert.equal(rule.pattern.test('https://example.com/youtubei/v1/player'), false);
   assert.ok(rules.find(r => r.name.endsWith('.ump')).pattern.test('https://rr1---sn-test.googlevideo.com/initplayback?abc=1'));
   assert.ok(rules.find(r => r.name.endsWith('.response')).pattern.test('https://youtubei.googleapis.com/youtubei/v1/reel/reel_watch_sequence'));
@@ -197,8 +200,8 @@ test('模块匹配范围与自有脚本地址，YouTube 内容保持原样，来
   const quicRules = ['AND,((DOMAIN-SUFFIX,googlevideo.com),(PROTOCOL,UDP)),REJECT', 'AND,((DOMAIN,youtubei.googleapis.com),(PROTOCOL,UDP)),REJECT'];
   for (const rule of quicRules) assert.ok(module.includes(rule + '\n'), rule);
   const withoutQuic = module.replace(/\[Rule\]\n#[^\n]*\n(?:AND,[^\n]*\n)+\n/, '');
-  sameBytes(Buffer.from(withoutQuic), execFileSync('git', ['show', '9a29f69a9be253f4125ed98a9759ed16336ddcb6:YouTubeLocal.sgmodule']));
-  for (const f of ['YouTubeNoAd.sgmodule', 'scripts/youtube.local.request.js', 'scripts/youtube.local.response.js']) {
+  sameBytes(Buffer.from(withoutQuic.split('\n').filter(line => !line.startsWith('youtube.local.signals = ')).join('\n')), execFileSync('git', ['show', '9a29f69a9be253f4125ed98a9759ed16336ddcb6:YouTubeLocal.sgmodule']));
+  for (const f of ['YouTubeNoAd.sgmodule', 'scripts/youtube.local.response.js']) {
     sameBytes(await readFile(new URL('../' + f, import.meta.url)), execFileSync('git', ['show', '9a29f69a9be253f4125ed98a9759ed16336ddcb6:' + f]));
   }
   const source = JSON.parse(await readFile(new URL('../sources-local.json', import.meta.url), 'utf8'));
@@ -208,4 +211,37 @@ test('模块匹配范围与自有脚本地址，YouTube 内容保持原样，来
   const combined = await readFile(new URL('../AdFilterLocal.sgmodule', import.meta.url), 'utf8');
   assert.equal((combined.match(/\[MITM\]/g) || []).length, 1);
   assert.ok(combined.includes('api.weibo.cn, weibointl.api.weibo.cn, *.googlevideo.com, youtubei.googleapis.com'));
+});
+
+
+test('广告请求信号清理保留用户上下文、未知字段和原始整数编码', () => {
+  const params = bytesField(1, concat([bytesField(1, new TextEncoder().encode('synthetic')), bytesField(2, Uint8Array.of(23))]));
+  const context = concat([bytesField(2, Uint8Array.of(42)), bytesField(9, concat([params, params, unknown])), unknown]);
+  const original = concat([bytesField(1, context), bytesField(2, Uint8Array.of(45)), unknown]);
+  const expected = concat([bytesField(1, concat([bytesField(2, Uint8Array.of(42)), bytesField(9, unknown), unknown])), bytesField(2, Uint8Array.of(45)), unknown]);
+  for (const endpoint of ['browse', 'next', 'player', 'search']) {
+    const result = runtime('request', 'youtubei.googleapis.com/youtubei/v1/' + endpoint + '?test=1', original, configured(), {},
+      { 'Content-Length': '999', 'content-encoding': 'br', 'User-Agent': 'synthetic', 'X-Keep': 'keep' });
+    sameBytes(result.body, expected);
+    assert.deepEqual(JSON.parse(JSON.stringify(result.headers)), { 'User-Agent': 'synthetic', 'X-Keep': 'keep' });
+  }
+});
+
+test('广告信号清理关闭、无广告参数、其他接口及损坏请求均保留原样', () => {
+  const body = bytesField(1, bytesField(9, bytesField(1, Uint8Array.of(23))));
+  for (const [route, input, options] of [
+    ['browse', body, { blockAds: false }], ['browse', unknown, {}],
+    ['browse', Uint8Array.of(0), {}], ['mdx/handoff', body, {}],
+  ]) assert.equal(Object.keys(runtime('request', 'youtubei.googleapis.com/youtubei/v1/' + route, input, configured(), options)).length, 0);
+});
+
+
+test('gzip 请求可清理广告信号，未改动及损坏压缩请求原样返回', () => {
+  const plain = bytesField(1, bytesField(9, concat([bytesField(1, Uint8Array.of(23)), unknown])));
+  const result = runtime('request', 'youtubei.googleapis.com/youtubei/v1/browse', gzipSync(plain), configured(), {}, { 'Content-Encoding': 'gzip' });
+  sameBytes(result.body, bytesField(1, bytesField(9, unknown)));
+  assert.equal(Object.keys(result.headers).length, 0);
+  for (const body of [gzipSync(unknown), Uint8Array.of(31, 139, 8, 0)]) {
+    assert.equal(Object.keys(runtime('request', 'youtubei.googleapis.com/youtubei/v1/browse', body)).length, 0);
+  }
 });

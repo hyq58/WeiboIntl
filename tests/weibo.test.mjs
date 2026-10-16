@@ -22,7 +22,7 @@ function jq(expression, body) {
 test('独立微博和两个合并入口的全部 jq 表达式可编译', async () => {
   for (const name of ['WeiboIntl.sgmodule', 'AdFilter.sgmodule', 'AdFilterLocal.sgmodule']) {
     const rules = bodyRules(await read(name));
-    assert.equal(rules.length, 6);
+    assert.equal(rules.length, 7);
     for (const rule of rules) {
       // 编译实际发布的表达式，跳过运行，避免无关输入结构引起运行错误。
       jq(`if false then (${rule.expression}) else . end`, {});
@@ -39,7 +39,7 @@ test('关注流广告标记被过滤，普通内容和未知元数据保持原�
   const normal = { id: 'normal', text: '正常关注内容', promotion: {}, tag_struct: [], other: { n: 23 } };
   const ads = [
     { id: 'label', mblogtypename: '广告' }, { id: 'promotion', promotion: { type: 'ad' } },
-    { id: 'boolean', is_ad: true }, { id: 'integer', is_ad: 1 },
+    { id: 'marked', ad_marked: true }, { id: 'boolean', is_ad: true }, { id: 'integer', is_ad: 1 },
     { id: 'card', card_type: 19 }, { id: 'auth-title', content_auth_info: { content_auth_title: '广告' } },
     { id: 'tag', tag_struct: [{ tag_name: '广告' }] },
   ];
@@ -58,4 +58,26 @@ test('合并入口使用同一微博规则，当前来源哈希对应修复文�
   }
   const metadata = JSON.parse(await read('sources.json'));
   assert.equal(createHash('sha256').update(source).digest('hex'), metadata.weibo.currentSha256);
+});
+
+
+test('评论区仅移除明确广告标记，推荐内容、原微博和分页保留', async () => {
+  const source = await read('WeiboIntl.sgmodule');
+  const rule = bodyRules(source).find(rule => rule.pattern.includes('build_comments'));
+  assert.ok(new RegExp(rule.pattern).test('https://api.weibo.cn/2/comments/build_comments?test=1'));
+  const normal = [{ type: 0, data: { text: '正常评论', ad_marked: false } },
+    { type: 1, data: { text: '推荐内容', ad_from_comment: true, ad_marked: false } },
+    { type: 99, extra: '未知结构' }];
+  const ads = [{ data: { ad_marked: true } }, { data: { is_ad: 1 } },
+    { data: { promotion: { type: 'ad' } } }, { data: { mblogtypename: '广告' } }];
+  const original = { status: { text: '原微博' }, datas: [...normal, ...ads], max_id: 23, total_number: 99 };
+  assert.deepEqual(jq(rule.expression, original), { ...original, datas: normal });
+  assert.deepEqual(jq(rule.expression, { unknown: '保留' }), { unknown: '保留' });
+});
+
+test('发现页移除横幅，保留搜索与未知字段，缺少 data 时保持原样', async () => {
+  const rule = bodyRules(await read('WeiboIntl.sgmodule')).find(rule => rule.pattern.endsWith('a=trends'));
+  assert.deepEqual(jq(rule.expression, { data: { banner: [{ id: 'promo' }], order: ['search_topic', 'banner'], search_topic: { text: '搜索' }, unknown: 23 } }),
+    { data: { order: ['search_topic'], search_topic: { text: '搜索' }, unknown: 23 } });
+  assert.deepEqual(jq(rule.expression, { unknown: 23 }), { unknown: 23 });
 });

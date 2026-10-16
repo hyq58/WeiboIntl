@@ -97,3 +97,20 @@ npm test
 依据 DNS 日志中的时间关联，补充 `df.tanx.com`、`ef-dongfeng.tanx.com`、`rdstat.tanx.com`、`sdk.e.qq.com`、`sdkquic.e.qq.com`、`p66-ad.adkwai.com` 六个精确域名拒绝规则，并同步到两个合并入口。这些域名与微博请求相邻，但 DNS 日志没有 App 归属、HTTP 内容或规则命中信息，不能据此确认广告曾展示；手机过滤效果仍待验收。域名规则也可能影响其他 App 使用同一广告服务。
 
 未纳入用途待确认的 `nb-ssp`，以及无法归属微博的 Google / Smadex 广告域名；保留微博主 API、图片和视频域名。原始 DNS 日志不上传公开仓库。更新手机模块后，彻底退出并重开微博，检查开屏、关注流和图片视频；如有异常可停用模块，或回退至提交 `db82773`。
+
+## 2026-10-16 上游参考与请求信号合并
+
+核对 Maasea/sgmodule（当前仍为已固定的 `65075cd`）、isinglever/adguard（`a3ed220`）、isinglever/sgmodule 实验分支（`4a7a785`）、DualSubs/YouTube（`037dce0`）及 akiralereal/shadowrocket-toolkit（`c497137`）。本次只参考许可明确的 isinglever 请求协议及广告参数清理逻辑，清空普通 browse / next / player / search 请求中的 `context.adSignalsInfo.params`，并同步到本机独立模块与本机合并模块。未知字段、广告开关关闭时的请求和损坏请求保持原样；旧 Worker 入口保留。
+
+未照搬按 `oad` 参数拒绝 initplayback 的规则：本次真实播放样本也携带该参数，不能单凭它区分广告。isinglever/adguard 最新说明仍将 UMP 视为实验功能，其发布模块不启用；本仓库没有将其视为成熟的播放修复。DualSubs 侧重字幕；此次不合入字幕功能。GPL 工具集没有直接复制进 Apache 本机源码。
+
+真实 HAR 仅在本机用于验证，不随公开仓库发布。此前 7 份 browse 响应中有 6 份含广告上报地址，解压后由现有响应脚本处理，相关标记均被移除；加密播放样本缺少客户端配置，不能据此宣称片头或中插广告已解决。新增请求清理是补充措施，不保证服务端停止下发广告。更新后仍需在 Shadowrocket 单独运行时检查播放、后台声音和广告。回退版本为 `7e2d677`。
+
+### 同日微博推广补充
+
+核对 QingRex/LoonKissSurge（`913ec00`）及 zmqcherish/proxy-script（`1d9f51b`）中的微博处理入口，仅参考字段和接口信息，没有复制缺少明确许可证的脚本。自行扩展现有 jq：时间线及卡片补充 `ad_marked=true` 判断，清理 `ad_version_2_weibo` 配置；发现页删除 `data.banner`；评论区仅移除 `ad_marked=true`、`is_ad=true/1`、`promotion.type=ad` 或明确“广告”标签的条目。`ad_from_comment=true` 和普通推荐本身不作为广告依据；用户正常讨论双十一、商品或购物不按关键词删除。
+
+本次 HAR 的四份评论响应没有这些显式广告标记，应完整保留；开屏和独立 `/2/ad/` 广告源已有规则覆盖。发现页横幅及新增广告标记通过构造样本验证，仍需手机实际验收。
+
+
+本次验证：20 项测试通过；真实 YouTube 的 7 个 gzip browse 请求均移除广告信号参数，其余顶层字段完整保留；真实微博的 3 份关注流和 4 份评论响应正常内容完整保留。请求处理兼容 gzip 原始字节和运行时已解压的字节；仅在确实修改正文时更新相关头部。上述验证不替代手机验收。
