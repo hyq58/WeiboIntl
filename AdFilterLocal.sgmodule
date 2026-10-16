@@ -29,6 +29,15 @@ DOMAIN,api.touch-moblie.com,REJECT
 DOMAIN,s.adxvip.com,REJECT
 DOMAIN-SUFFIX,guanggao-prod.cn-shanghai.log.aliyuncs.com,REJECT
 
+# 3. 2026-10-16 DNS 日志补充：与微博请求时间相邻的广告候选，采用精确域名阻断。
+# DNS 正常解析不等于广告已展示；手机效果仍需更新模块后验收。
+DOMAIN,df.tanx.com,REJECT
+DOMAIN,ef-dongfeng.tanx.com,REJECT
+DOMAIN,rdstat.tanx.com,REJECT
+DOMAIN,sdk.e.qq.com,REJECT
+DOMAIN,sdkquic.e.qq.com,REJECT
+DOMAIN,p66-ad.adkwai.com,REJECT
+
 # YouTube
 # 禁用 YouTube QUIC：QUIC 无法被本机 MITM 解密，播放流走 QUIC 时 initplayback 去广告失效；拒绝后回落 TCP
 AND,((DOMAIN-SUFFIX,googlevideo.com),(PROTOCOL,UDP)),REJECT
