@@ -2,8 +2,10 @@
 #!desc = 微博轻享版/国际版与 YouTube 个人过滤配置；与独立模块二选一启用。
 #!author = iab0x00, kokoryh, Antigravity, Maasea；整合维护 hyq58
 #!url = https://raw.githubusercontent.com/hyq58/WeiboIntl/main/AdFilter.sgmodule
+#!update = 2026-10-21
 
 # 自动生成：修改 WeiboIntl.sgmodule 或 settings.json 后运行 node tools/build.mjs。
+# 更新日期：2026-10-21
 # 修改说明：合并两个独立模块，去重 MITM 主机名，保留各自来源与许可边界。
 
 [Rule]

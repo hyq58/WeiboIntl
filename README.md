@@ -114,3 +114,12 @@ npm test
 
 
 本次验证：20 项测试通过；真实 YouTube 的 7 个 gzip browse 请求均移除广告信号参数，其余顶层字段完整保留；真实微博的 3 份关注流和 4 份评论响应正常内容完整保留。请求处理兼容 gzip 原始字节和运行时已解压的字节；仅在确实修改正文时更新相关头部。上述验证不替代手机验收。
+
+## 2026-10-21 抓包补充穿山甲 SDK 阻断与更新注释
+
+依据用户提供的 ProxyPin 真实抓包，核对微博轻享版开屏广告与时间线广告：
+- 开屏广告（`weibointl.api.weibo.cn/portal.php?a=get_coopen_ads`）与开屏预加载（`bootpreload.uve.weibo.com`）、商业策略（`biz.weibo.com`）已有模块规则全面覆盖；
+- 时间线关注流（`statuses/friends/timeline`）本身不含内置广告，全部信息流广告均由独立接口 `api.weibo.cn/2/ad/weibointl` 注入，已被现有 `^https?:\/\/api\.weibo\.cn\/2\/ad\/ - reject-dict` 规则覆盖；
+- 依据抓包中捕获的第三方广告打点，在 `[Rule]` 中补充字节跳动穿山甲 / 火山引擎 SDK 域名精确阻断：`is.snssdk.com`、`log.zijieapi.com`、`mon.zijieapi.com`；
+- 构建脚本同步将 `#!update = 2026-10-21` 与更新日期注释注入到合并模块 `AdFilterLocal.sgmodule` 及 `AdFilter.sgmodule` 头部，便于小火箭展示更新状态。
+

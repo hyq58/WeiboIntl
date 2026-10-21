@@ -2,8 +2,10 @@
 #!desc = 微博沿用原规则；YouTube 在小火箭本机处理，无作者 Worker 依赖。
 #!author = iab0x00, kokoryh, Antigravity, Maasea, isinglever；整合维护 hyq58
 #!url = https://raw.githubusercontent.com/hyq58/WeiboIntl/main/AdFilterLocal.sgmodule
+#!update = 2026-10-21
 
 # 自动生成：修改 WeiboIntl.sgmodule 或 local-settings.json 后运行 npm run build。
+# 更新日期：2026-10-21
 # 修改说明：合并两个独立模块，去重 MITM 主机名，保留各自来源与许可边界。
 
 [Rule]

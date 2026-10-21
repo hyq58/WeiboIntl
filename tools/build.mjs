@@ -57,6 +57,9 @@ const youtube = [
   upstream.get('MITM').join('\n').trim(), '',
 ].join('\n');
 const weibo = await read('WeiboIntl.sgmodule');
+const updateMatch = weibo.match(/^#!update\s*=\s*(.+)$/m);
+const updateDate = updateMatch ? updateMatch[1].trim() : '';
+
 async function generateCombined(youtubeText, local = false) {
   const sources = [sections(weibo), sections(youtubeText)];
   const merged = [
@@ -64,7 +67,9 @@ async function generateCombined(youtubeText, local = false) {
     local ? '#!desc = 微博沿用原规则；YouTube 在小火箭本机处理，无作者 Worker 依赖。' : '#!desc = 微博轻享版/国际版与 YouTube 个人过滤配置；与独立模块二选一启用。',
     local ? '#!author = iab0x00, kokoryh, Antigravity, Maasea, isinglever；整合维护 hyq58' : '#!author = iab0x00, kokoryh, Antigravity, Maasea；整合维护 hyq58',
     `#!url = ${base}/${local ? 'AdFilterLocal' : 'AdFilter'}.sgmodule`,
+    ...(updateDate ? [`#!update = ${updateDate}`] : []),
     '', local ? '# 自动生成：修改 WeiboIntl.sgmodule 或 local-settings.json 后运行 npm run build。' : '# 自动生成：修改 WeiboIntl.sgmodule 或 settings.json 后运行 node tools/build.mjs。',
+    ...(updateDate ? [`# 更新日期：${updateDate}`] : []),
     '# 修改说明：合并两个独立模块，去重 MITM 主机名，保留各自来源与许可边界。',
     '',
   ];

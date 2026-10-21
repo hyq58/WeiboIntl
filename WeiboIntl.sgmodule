@@ -4,6 +4,9 @@
 #!url = https://raw.githubusercontent.com/hyq58/WeiboIntl/main/WeiboIntl.sgmodule
 #!update = 2026-10-21
 
+# 更新日期：2026-10-21
+# 修改说明：基于抓包阻断微博轻享版开屏、时间线独立注入广告流与关联商业/网盟打点
+
 [Rule]
 # 0. 禁用微博接口 QUIC：QUIC 无法被本机 MITM 解密，App 走 QUIC 时时间线去广告会间歇失效；拒绝后回落 TCP
 AND,((DOMAIN,api.weibo.cn),(PROTOCOL,UDP)),REJECT
