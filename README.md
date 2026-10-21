@@ -121,5 +121,6 @@ npm test
 - 开屏广告（`weibointl.api.weibo.cn/portal.php?a=get_coopen_ads`）与开屏预加载（`bootpreload.uve.weibo.com`）、商业策略（`biz.weibo.com`）已有模块规则全面覆盖；
 - 时间线关注流（`statuses/friends/timeline`）本身不含内置广告，全部信息流广告均由独立接口 `api.weibo.cn/2/ad/weibointl` 注入，已被现有 `^https?:\/\/api\.weibo\.cn\/2\/ad\/ - reject-dict` 规则覆盖；
 - 依据抓包中捕获的第三方广告打点，在 `[Rule]` 中补充字节跳动穿山甲 / 火山引擎 SDK 域名精确阻断：`is.snssdk.com`、`log.zijieapi.com`、`mon.zijieapi.com`；
-- 构建脚本同步将 `#!update = 2026-10-21` 与更新日期注释注入到合并模块 `AdFilterLocal.sgmodule` 及 `AdFilter.sgmodule` 头部，便于小火箭展示更新状态。
+- 构建脚本同步将 `#!update = 2026-10-21` 与更新日期注释注入到合并模块 `AdFilterLocal.sgmodule` 及 `AdFilter.sgmodule` 头部，便于小火箭展示更新状态；
+- 依据真机 Shadowrocket 代理日志（18:55 导出），补充友盟统计新后缀阻断：`DOMAIN-SUFFIX,umengcloud.com,REJECT`；实测日志确认时间线广告接口拦截率 100%（8/8 次全部命中 REJECT-DICT）。
 

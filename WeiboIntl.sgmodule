@@ -15,6 +15,7 @@ AND,((DOMAIN,weibointl.api.weibo.cn),(PROTOCOL,UDP)),REJECT
 DOMAIN-SUFFIX,uve.weibo.com,REJECT
 DOMAIN-SUFFIX,biz.weibo.com,REJECT
 DOMAIN-SUFFIX,umeng.com,REJECT
+DOMAIN-SUFFIX,umengcloud.com,REJECT
 
 # 2. 封杀轻享版调用的第三方聚合广告兜底联盟（抓包捕获之广点通/快手/申石/趣头条/爱点击/触控等竞价SDK）
 DOMAIN-SUFFIX,gdt.qq.com,REJECT
