@@ -2,7 +2,7 @@
 #!desc = 微博轻享版/国际版去广告模块（基于真实抓包深度定制：全局置零开屏与时间线插入槽位、阻断第一方商业策略与第三方网盟、精细清洗时间线）
 #!author = iab0x00, kokoryh (Optimized by Antigravity)
 #!url = https://raw.githubusercontent.com/hyq58/WeiboIntl/main/WeiboIntl.sgmodule
-#!update = 2026-10-16
+#!update = 2026-10-21
 
 [Rule]
 # 0. 禁用微博接口 QUIC：QUIC 无法被本机 MITM 解密，App 走 QUIC 时时间线去广告会间歇失效；拒绝后回落 TCP
@@ -34,6 +34,11 @@ DOMAIN,rdstat.tanx.com,REJECT
 DOMAIN,sdk.e.qq.com,REJECT
 DOMAIN,sdkquic.e.qq.com,REJECT
 DOMAIN,p66-ad.adkwai.com,REJECT
+
+# 4. 2026-10-21 抓包补充：字节跳动穿山甲 SDK 配置与打点
+DOMAIN,is.snssdk.com,REJECT
+DOMAIN,log.zijieapi.com,REJECT
+DOMAIN,mon.zijieapi.com,REJECT
 
 [URL Rewrite]
 # 1. 搜索框默认词/推广推荐词

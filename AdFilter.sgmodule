@@ -38,6 +38,11 @@ DOMAIN,sdk.e.qq.com,REJECT
 DOMAIN,sdkquic.e.qq.com,REJECT
 DOMAIN,p66-ad.adkwai.com,REJECT
 
+# 4. 2026-10-21 抓包补充：字节跳动穿山甲 SDK 配置与打点
+DOMAIN,is.snssdk.com,REJECT
+DOMAIN,log.zijieapi.com,REJECT
+DOMAIN,mon.zijieapi.com,REJECT
+
 [URL Rewrite]
 # 微博轻享版 / 国际版
 # 1. 搜索框默认词/推广推荐词

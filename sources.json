@@ -14,7 +14,7 @@
     "repository": "https://github.com/hyq58/WeiboIntl",
     "baselineCommit": "71675093db11c961ef75acfcf5817ab4053d0feb",
     "sha256": "0de1670c96c95853dc363da1f5fe08c55cd7bfb40637e7b59cccb55f599957c3",
-    "currentSha256": "7d85cb28d71413c0e93f88053450a0215f2d9a8d66fa89370cd872e33c1c8aa0",
-    "changes": "2026-10-03：补齐时间线 jq 表达式缺失的两个右括号；过滤条件与接口范围保持原样。 2026-10-16：依据 DNS 时间关联补充六个广告候选的精确域名拒绝规则，手机效果待验收。 2026-10-16：补充 ad_marked 时间线/卡片标记、评论区显式广告过滤及发现页横幅清理；第三方脚本未直接复制。"
+    "currentSha256": "507d4df5fccae96f91efc1d9310fa658e03d15c116752d5bfa7479560c8010a5",
+    "changes": "2026-10-03：补齐时间线 jq 表达式缺失的两个右括号；过滤条件与接口范围保持原样。 2026-10-16：依据 DNS 时间关联补充六个广告候选的精确域名拒绝规则，手机效果待验收。 2026-10-16：补充 ad_marked 时间线/卡片标记、评论区显式广告过滤及发现页横幅清理；第三方脚本未直接复制。 2026-10-21：依据 ProxyPin 抓包补充字节跳动穿山甲 SDK 配置与打点域名（is.snssdk.com、log.zijieapi.com、mon.zijieapi.com）精确阻断规则。"
   }
 }

@@ -38,6 +38,11 @@ DOMAIN,sdk.e.qq.com,REJECT
 DOMAIN,sdkquic.e.qq.com,REJECT
 DOMAIN,p66-ad.adkwai.com,REJECT
 
+# 4. 2026-10-21 抓包补充：字节跳动穿山甲 SDK 配置与打点
+DOMAIN,is.snssdk.com,REJECT
+DOMAIN,log.zijieapi.com,REJECT
+DOMAIN,mon.zijieapi.com,REJECT
+
 # YouTube
 # 禁用 YouTube QUIC：QUIC 无法被本机 MITM 解密，播放流走 QUIC 时 initplayback 去广告失效；拒绝后回落 TCP
 AND,((DOMAIN-SUFFIX,googlevideo.com),(PROTOCOL,UDP)),REJECT
