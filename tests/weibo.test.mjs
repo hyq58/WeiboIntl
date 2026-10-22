@@ -60,6 +60,30 @@ test('合并入口使用同一微博规则，当前来源哈希对应修复文�
   assert.equal(createHash('sha256').update(source).digest('hex'), metadata.weibo.currentSha256);
 });
 
+test('荐读和明确广告在时间线、卡片及嵌套卡片组一致过滤，不扫描正文和转发内容', async () => {
+  const rule = bodyRules(await read('WeiboIntl.sgmodule'))[0];
+  const normal = { id: 'normal', text: '荐读：双十一、痘痘和疤痕的正常讨论',
+    page_info: { actionlog: { source: 'organic' } },
+    retweeted_status: { mblogtypename: '荐读', text: '保留转发内容' } };
+  const ads = [
+    { mblogtypename: '荐读' }, { mblogtypename: '薦讀' },
+    { content_auth_info: { content_auth_title: '荐读' } },
+    { tag_struct: [{ tag_name: '荐读' }] }, { adType: '荐读' },
+    { page_info: { actionlog: { source: 'ad' } } },
+    { is_ad: 1 }, { is_ad: true }, { ad_marked: true },
+  ];
+  const normalCard = { card_type: 9, mblog: normal, unknown: '保留' };
+  const group = { card_type: 11, card_group: [...ads.map(mblog => ({ mblog })), normalCard] };
+  const input = { statuses: [...ads, normal], cards: [...ads.map(mblog => ({ mblog })),
+    { adType: '荐读' }, normalCard, group], cursor: 17, extra: '保留分页和未知字段' };
+  assert.deepEqual(jq(rule.expression, input), { ...input, statuses: [normal],
+    cards: [normalCard, { ...group, card_group: [normalCard] }] });
+  assert.deepEqual(jq(rule.expression, { statuses: null, cards: [], extra: 17 }),
+    { statuses: null, cards: [], extra: 17 });
+  assert.deepEqual(jq(rule.expression, { statuses: [{ tag_struct: null }, normal] }),
+    { statuses: [{ tag_struct: null }, normal] });
+});
+
 
 test('评论区仅移除明确广告标记，推荐内容、原微博和分页保留', async () => {
   const source = await read('WeiboIntl.sgmodule');

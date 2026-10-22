@@ -14,7 +14,7 @@
     "repository": "https://github.com/hyq58/WeiboIntl",
     "baselineCommit": "71675093db11c961ef75acfcf5817ab4053d0feb",
     "sha256": "0de1670c96c95853dc363da1f5fe08c55cd7bfb40637e7b59cccb55f599957c3",
-    "currentSha256": "e1238755b11385b5dfbc09b548006fb6346f110f89acfcbdbe7293d3046a6792",
-    "changes": "2026-10-03：补齐时间线 jq 表达式缺失的两个右括号；过滤条件与接口范围保持原样。 2026-10-16：依据 DNS 时间关联补充六个广告候选的精确域名拒绝规则，手机效果待验收。 2026-10-16：补充 ad_marked 时间线/卡片标记、评论区显式广告过滤及发现页横幅清理；第三方脚本未直接复制。 2026-10-21：依据 ProxyPin 抓包补充字节跳动穿山甲 SDK 配置与打点域名（is.snssdk.com、log.zijieapi.com、mon.zijieapi.com）精确阻断规则。 补充实测代理日志捕获的友盟新后缀域名（umengcloud.com）阻断。"
+    "currentSha256": "c59663cd31a2541cd59d64fcb48e74285a7b624a04947f7221b265543edeb2bd",
+    "changes": "2026-10-03：补齐时间线 jq 表达式缺失的两个右括号；过滤条件与接口范围保持原样。 2026-10-16：依据 DNS 时间关联补充六个广告候选的精确域名拒绝规则，手机效果待验收。 2026-10-16：补充 ad_marked 时间线/卡片标记、评论区显式广告过滤及发现页横幅清理；第三方脚本未直接复制。 2026-10-21：依据 ProxyPin 抓包补充字节跳动穿山甲 SDK 配置与打点域名（is.snssdk.com、log.zijieapi.com、mon.zijieapi.com）精确阻断规则。 补充实测代理日志捕获的友盟新后缀域名（umengcloud.com）阻断。 2026-10-22：补充荐读/薦讀及明确广告来源标记，统一时间线、卡片和嵌套卡片组的推广判断；不扫描正文关键词，手机效果待验收。"
   }
 }
