@@ -1,0 +1,452 @@
+#!name = 个人广告过滤（微博、YouTube、通用）
+#!desc = 合并微博、YouTube 本机去广告和 iFansClub 通用广告拦截。
+#!author = hyq58, iab0x00, kokoryh, Antigravity, Maasea, isinglever, akiralereal
+#!url = https://raw.githubusercontent.com/hyq58/WeiboIntl/main/AdFilterCombined.sgmodule
+#!update = 2026-11-16
+
+# 个人版合并配置。各组成部分的源文件、修改说明及许可见本仓库 NOTICE.md。
+# https://github.com/hyq58/WeiboIntl/blob/main/NOTICE.md
+# iFansClub ADBlock 及 YouTube 补充规则来自以下 GPL-3.0 源码。
+# https://github.com/akiralereal/shadowrocket-toolkit/tree/c5559d9add4aa3e67f841e0380c10b7cd9644a64
+# https://raw.githubusercontent.com/akiralereal/shadowrocket-toolkit/c5559d9add4aa3e67f841e0380c10b7cd9644a64/LICENSE
+# YouTube 保留个人版的单一播放响应处理，另外拦截独立的广告页和广告统计请求。
+
+[Rule]
+# 微博轻享版 / 国际版
+# 0. 禁用微博接口 QUIC：QUIC 无法被本机 MITM 解密，App 走 QUIC 时时间线去广告会间歇失效；拒绝后回落 TCP
+AND,((DOMAIN,api.weibo.cn),(PROTOCOL,UDP)),REJECT
+AND,((DOMAIN,weibointl.api.weibo.cn),(PROTOCOL,UDP)),REJECT
+# 1. 微博官方第一方开屏与商业广告（实锤捕获 bootpreload, bootrealtime, adimg, adstrategy, vs.biz）
+DOMAIN-SUFFIX,uve.weibo.com,REJECT
+DOMAIN-SUFFIX,biz.weibo.com,REJECT
+DOMAIN-SUFFIX,umeng.com,REJECT
+DOMAIN-SUFFIX,umengcloud.com,REJECT
+
+# 2. 封杀轻享版调用的第三方聚合广告兜底联盟（抓包捕获之广点通/快手/申石/趣头条/爱点击/触控等竞价SDK）
+DOMAIN-SUFFIX,gdt.qq.com,REJECT
+DOMAIN-SUFFIX,ugdtimg.com,REJECT
+DOMAIN-SUFFIX,tfogc.com,REJECT
+DOMAIN-SUFFIX,aiclk.com,REJECT
+DOMAIN-SUFFIX,shenshiads.com,REJECT
+DOMAIN-SUFFIX,qttunion.com,REJECT
+DOMAIN-SUFFIX,1sapp.com,REJECT
+DOMAIN,open.e.kuaishou.com,REJECT
+DOMAIN,api.touch-moblie.com,REJECT
+DOMAIN,s.adxvip.com,REJECT
+DOMAIN-SUFFIX,guanggao-prod.cn-shanghai.log.aliyuncs.com,REJECT
+
+# 3. 2026-10-16 DNS 日志补充：与微博请求时间相邻的广告候选，采用精确域名阻断。
+# DNS 正常解析不等于广告已展示；手机效果仍需更新模块后验收。
+DOMAIN,df.tanx.com,REJECT
+DOMAIN,ef-dongfeng.tanx.com,REJECT
+DOMAIN,rdstat.tanx.com,REJECT
+DOMAIN,sdk.e.qq.com,REJECT
+DOMAIN,sdkquic.e.qq.com,REJECT
+DOMAIN,p66-ad.adkwai.com,REJECT
+
+# 4. 2026-10-21 抓包补充：字节跳动穿山甲 SDK 配置与打点
+DOMAIN,is.snssdk.com,REJECT
+DOMAIN,log.zijieapi.com,REJECT
+DOMAIN,mon.zijieapi.com,REJECT
+
+# YouTube
+# 禁用 YouTube QUIC：QUIC 无法被本机 MITM 解密，播放流走 QUIC 时 initplayback 去广告失效；拒绝后回落 TCP
+AND,((DOMAIN-SUFFIX,googlevideo.com),(PROTOCOL,UDP)),REJECT
+AND,((DOMAIN,youtubei.googleapis.com),(PROTOCOL,UDP)),REJECT
+
+# iFansClub ADBlock
+DOMAIN,bootpreload.uve.weibo.com,REJECT,extended-matching
+DOMAIN,sdkaction.biz.weibo.com,REJECT,extended-matching
+DOMAIN,sdkmonitor.biz.weibo.com,REJECT,extended-matching
+DOMAIN,adstrategy.biz.weibo.com,REJECT,extended-matching
+DOMAIN,wbapp.uve.weibo.com,REJECT,extended-matching
+DOMAIN,sdkapp.uve.weibo.com,REJECT,extended-matching
+DOMAIN,ad-cdn.qingting.fm,REJECT,extended-matching
+DOMAIN,ad-scope.com,REJECT,extended-matching
+DOMAIN,ad-scope.com.cn,REJECT,extended-matching
+DOMAIN,ad-sdk-config.youdao.com,REJECT,extended-matching
+DOMAIN,ad-splash.hktvmall.com,REJECT,extended-matching
+DOMAIN,ad.12306.cn,REJECT,extended-matching
+DOMAIN,ad.51wnl.com,REJECT,extended-matching
+DOMAIN,ad.api.3g.youku.com,REJECT,extended-matching
+DOMAIN,ad.bwton.com,REJECT,extended-matching
+DOMAIN,ad.cctv.com,REJECT,extended-matching
+DOMAIN,ad.cyapi.cn,REJECT,extended-matching
+DOMAIN,ad.doubleclick.net,REJECT,extended-matching
+DOMAIN,ad.gameley.com,REJECT,extended-matching
+DOMAIN,ad.hpplay.cn,REJECT,extended-matching
+DOMAIN,ad.iot.360.cn,REJECT,extended-matching
+DOMAIN,ad.jia.360.cn,REJECT,extended-matching
+DOMAIN,ad.life.360.cn,REJECT,extended-matching
+DOMAIN,ad.partner.gifshow.com,REJECT,extended-matching
+DOMAIN,ad.qingting.fm,REJECT,extended-matching
+DOMAIN,ad.qq.com,REJECT,extended-matching
+DOMAIN,ad.richmob.cn,REJECT,extended-matching
+DOMAIN,ad.shenshiads.com,REJECT,extended-matching
+DOMAIN,ad.shunchangzhixing.com,REJECT,extended-matching
+DOMAIN,ad.tencentmusic.com,REJECT,extended-matching
+DOMAIN,ad.toutiao.com,REJECT,extended-matching
+DOMAIN,ad.v3mh.com,REJECT,extended-matching
+DOMAIN,ad.weibo.com,REJECT,extended-matching
+DOMAIN,ad.winrar.com.cn,REJECT,extended-matching
+DOMAIN,ad.xunkids.com,REJECT,extended-matching
+DOMAIN,ad.zijieapi.com,REJECT,extended-matching
+DOMAIN,adapi.izuiyou.com,REJECT,extended-matching
+DOMAIN,adapi.yynetwk.com,REJECT,extended-matching
+DOMAIN,adcdn.hpplay.cn,REJECT,extended-matching
+DOMAIN,adcdn.tencentmusic.com,REJECT,extended-matching
+DOMAIN,adclick.g.doubleclick.net,REJECT,extended-matching
+DOMAIN,adclick.tencentmusic.com,REJECT,extended-matching
+DOMAIN,adcolony.com,REJECT,extended-matching
+DOMAIN,adexp.chinaliftoff.io,REJECT,extended-matching
+DOMAIN,adexp.liftoff.io,REJECT,extended-matching
+DOMAIN,adexpo.tencentmusic.com,REJECT,extended-matching
+DOMAIN,adimg.uve.weibo.com,REJECT,extended-matching
+DOMAIN,adks.hpplay.cn,REJECT,extended-matching
+DOMAIN,adlink-api.huan.tv,REJECT,extended-matching
+DOMAIN,ads-api-o.api.leiniao.com,REJECT,extended-matching
+DOMAIN,ads-api.tiktok.com,REJECT,extended-matching
+DOMAIN,ads-api.twitter.com,REJECT,extended-matching
+DOMAIN,ads-img-al.xhscdn.com,REJECT,extended-matching
+DOMAIN,ads-img-qc.xhscdn.com,REJECT,extended-matching
+DOMAIN,ads-jp.tiktok.com,REJECT,extended-matching
+DOMAIN,ads-marketing-vivofs.vivo.com.cn,REJECT,extended-matching
+DOMAIN,ads-sdk-api.ranfenghd.com,REJECT,extended-matching
+DOMAIN,ads-sg.tiktok.com,REJECT,extended-matching
+DOMAIN,ads-video-al.xhscdn.com,REJECT,extended-matching
+DOMAIN,ads-video-qc.xhscdn.com,REJECT,extended-matching
+DOMAIN,ads.auctions.yahoo.com,REJECT,extended-matching
+DOMAIN,ads.google.cn,REJECT,extended-matching
+DOMAIN,ads.huan.tv,REJECT,extended-matching
+DOMAIN,ads.icloseli.cn,REJECT,extended-matching
+DOMAIN,ads.inmobi.com,REJECT,extended-matching
+DOMAIN,ads.linkedin.com,REJECT,extended-matching
+DOMAIN,ads.pinterest.com,REJECT,extended-matching
+DOMAIN,ads.pubmatic.com,REJECT,extended-matching
+DOMAIN,ads.raidrive.com,REJECT,extended-matching
+DOMAIN,ads.servebom.com,REJECT,extended-matching
+DOMAIN,ads.service.kugou.com,REJECT,extended-matching
+DOMAIN,ads.tiktok.com,REJECT,extended-matching
+DOMAIN,ads.v3mh.com,REJECT,extended-matching
+DOMAIN,ads.zhinengxiyifang.cn,REJECT,extended-matching
+DOMAIN,adsense.google.cn,REJECT,extended-matching
+DOMAIN,adserver.unityads.unity3d.com,REJECT,extended-matching
+DOMAIN,adservice.google.com,REJECT,extended-matching
+DOMAIN,adservice.sigmob.cn,REJECT,extended-matching
+DOMAIN,adserviceretry.kugou.com,REJECT,extended-matching
+DOMAIN,adslvfile.qq.com,REJECT,extended-matching
+DOMAIN,adsmart.konka.com,REJECT,extended-matching
+DOMAIN,adsmind.gdtimg.com,REJECT,extended-matching
+DOMAIN,adsmind.ugdtimg.com,REJECT,extended-matching
+DOMAIN,adsp.xunlei.com,REJECT,extended-matching
+DOMAIN,adstore-1252524079.file.myqcloud.com,REJECT,extended-matching
+DOMAIN,adstore-index-1252524079.file.myqcloud.com,REJECT,extended-matching
+DOMAIN,adtech.yahooinc.com,REJECT,extended-matching
+DOMAIN,adui.tg.meitu.com,REJECT,extended-matching
+DOMAIN,adv-api.shenshiads.com,REJECT,extended-matching
+DOMAIN,advice-ads.s3.amazonaws.com,REJECT,extended-matching
+DOMAIN,adview.cn,REJECT,extended-matching
+DOMAIN,adx-ad.smart-tv.cn,REJECT,extended-matching
+DOMAIN,adx-api.jinmo.tech,REJECT,extended-matching
+DOMAIN,adx-bj-req.anythinktech.com,REJECT,extended-matching
+DOMAIN,adx-bj.anythinktech.com,REJECT,extended-matching
+DOMAIN,adx-open-service.youku.com,REJECT,extended-matching
+DOMAIN,adx-os.anythinktech.com,REJECT,extended-matching
+DOMAIN,adx-saas.advlion.com,REJECT,extended-matching
+DOMAIN,adx-strategy-api-cn.statisticslinks.com,REJECT,extended-matching
+DOMAIN,adx.ads.heytapmobi.com,REJECT,extended-matching
+DOMAIN,adx.ads.oppomobile.com,REJECT,extended-matching
+DOMAIN,adx.appsdk.com.cn,REJECT,extended-matching
+DOMAIN,adx.sogaha.cn,REJECT,extended-matching
+DOMAIN,adx.tuia.cn,REJECT,extended-matching
+DOMAIN,adxserver.ad.cmvideo.cn,REJECT,extended-matching
+DOMAIN,afs.googlesyndication.com,REJECT,extended-matching
+DOMAIN,ali-ad.a.yximgs.com,REJECT,extended-matching
+DOMAIN,api-access.pangolin-sdk-toutiao-b.com,REJECT,extended-matching
+DOMAIN,api-access.pangolin-sdk-toutiao2.com,REJECT,extended-matching
+DOMAIN,api-access.pangolin-sdk-toutiao3.com,REJECT,extended-matching
+DOMAIN,api-access.pangolin-sdk-toutiao4.com,REJECT,extended-matching
+DOMAIN,api-access.pangolin-sdk-toutiao5.com,REJECT,extended-matching
+DOMAIN,api-ad-data.kajicam.com,REJECT,extended-matching
+DOMAIN,api-ad-product.huxiu.com,REJECT,extended-matching
+DOMAIN,api-ad.kajicam.com,REJECT,extended-matching
+DOMAIN,api-htp.beizi.biz,REJECT,extended-matching
+DOMAIN,api.ad.xiaomi.com,REJECT,extended-matching
+DOMAIN,api.anythinktech.com,REJECT,extended-matching
+DOMAIN,api.aqyad.com,REJECT,extended-matching
+DOMAIN,api.hzsanjiaomao.com,REJECT,extended-matching
+DOMAIN,api.ssp.xcultur.com,REJECT,extended-matching
+DOMAIN,b1-data.ads.heytapmobi.com,REJECT,extended-matching
+DOMAIN,bdapi-ads.realmemobile.com,REJECT,extended-matching
+DOMAIN,bdapi-in-ads.realmemobile.com,REJECT,extended-matching
+DOMAIN,bdapi.ads.oppomobile.com,REJECT,extended-matching
+DOMAIN,beizi.biz,REJECT,extended-matching
+DOMAIN,c2.gdt.qq.com,REJECT,extended-matching
+DOMAIN,canvas-cdn.gdt.qq.com,REJECT,extended-matching
+DOMAIN,cdn-ad.wtzw.com,REJECT,extended-matching
+DOMAIN,cdn-ads.oss-cn-shanghai.aliyuncs.com,REJECT,extended-matching
+DOMAIN,cdn-f.adsmoloco.com,REJECT,extended-matching
+DOMAIN,cdn.chinaliftoff-creatives.io,REJECT,extended-matching
+DOMAIN,cdn.iads.unitychina.cn,REJECT,extended-matching
+DOMAIN,cdn.liftoff-creatives.io,REJECT,extended-matching
+DOMAIN,ck.ads.oppomobile.com,REJECT,extended-matching
+DOMAIN,click.chinaliftoff.io,REJECT,extended-matching
+DOMAIN,click.liftoff.io,REJECT,extended-matching
+DOMAIN,click4.chinaliftoff.io,REJECT,extended-matching
+DOMAIN,cn-api.anythinktech.com,REJECT,extended-matching
+DOMAIN,config.inmobi.com,REJECT,extended-matching
+DOMAIN,config.unityads.unity3d.com,REJECT,extended-matching
+DOMAIN,cpc-service-square.aiclk.com,REJECT,extended-matching
+DOMAIN,csjplatform.com,REJECT,extended-matching
+DOMAIN,d.applovin.com,REJECT,extended-matching
+DOMAIN,d.applvn.com,REJECT,extended-matching
+DOMAIN,da.anythinktech.com,REJECT,extended-matching
+DOMAIN,data.ads.oppomobile.com,REJECT,extended-matching
+DOMAIN,dc.sigmob.cn,REJECT,extended-matching
+DOMAIN,doubleclick-cn.net,REJECT,extended-matching
+DOMAIN,e.ad.xiaomi.com,REJECT,extended-matching
+DOMAIN,edge.ads.twitch.tv,REJECT,extended-matching
+DOMAIN,et-eus.w.inmobi.com,REJECT,extended-matching
+DOMAIN,g-adnet.hiaiabc.com,REJECT,extended-matching
+DOMAIN,globalapi.ad.xiaomi.com,REJECT,extended-matching
+DOMAIN,googleads.g.doubleclick-cn.net,REJECT,extended-matching
+DOMAIN,googleads.g.doubleclick.net,REJECT,extended-matching
+DOMAIN,googleadservices-cn.com,REJECT,extended-matching
+DOMAIN,googleadservices.com,REJECT,extended-matching
+DOMAIN,gromore.pangolin-sdk-toutiao.com,REJECT,extended-matching
+DOMAIN,hw-ot-ad.a.yximgs.com,REJECT,extended-matching
+DOMAIN,i.l-new.inmobicdn.net,REJECT,extended-matching
+DOMAIN,i.l.inmobicdn.net,REJECT,extended-matching
+DOMAIN,iad.apple.com,REJECT,extended-matching
+DOMAIN,iad.g.163.com,REJECT,extended-matching
+DOMAIN,iadmusicmat.music.126.net,REJECT,extended-matching
+DOMAIN,iadsdk.apple.com,REJECT,extended-matching
+DOMAIN,ii.gdt.qq.com,REJECT,extended-matching
+DOMAIN,image-ad.sm.cn,REJECT,extended-matching
+DOMAIN,impression-asia.chinaliftoff.io,REJECT,extended-matching
+DOMAIN,impression-asia.liftoff.io,REJECT,extended-matching
+DOMAIN,lf3-ad-union-sdk.pglstatp-toutiao.com,REJECT,extended-matching
+DOMAIN,lf6-ad-union-sdk.pglstatp-toutiao.com,REJECT,extended-matching
+DOMAIN,litchiads.com,REJECT,extended-matching
+DOMAIN,m-adnet.hiaiabc.com,REJECT,extended-matching
+DOMAIN,m.ad.zhangyue.com,REJECT,extended-matching
+DOMAIN,m.shenshiads.com,REJECT,extended-matching
+DOMAIN,medproad.com,REJECT,extended-matching
+DOMAIN,moatads.com,REJECT,extended-matching
+DOMAIN,mores.toponad.com,REJECT,extended-matching
+DOMAIN,ms.applovin.com,REJECT,extended-matching
+DOMAIN,ms.applvn.com,REJECT,extended-matching
+DOMAIN,ms4.applovin.com,REJECT,extended-matching
+DOMAIN,ms4.applvn.com,REJECT,extended-matching
+DOMAIN,o-sdk.mediation.unity3d.com,REJECT,extended-matching
+DOMAIN,open-set-api.shenshiads.com,REJECT,extended-matching
+DOMAIN,openadapi.fancydsp.com,REJECT,extended-matching
+DOMAIN,p1-be-pack-sign.pglstatp-toutiao.com,REJECT,extended-matching
+DOMAIN,p2-be-pack-sign.pglstatp-toutiao.com,REJECT,extended-matching
+DOMAIN,p3-be-pack-sign.pglstatp-toutiao.com,REJECT,extended-matching
+DOMAIN,p4-be-pack-sign.pglstatp-toutiao.com,REJECT,extended-matching
+DOMAIN,p5-be-pack-sign.pglstatp-toutiao.com,REJECT,extended-matching
+DOMAIN,p6-be-pack-sign.pglstatp-toutiao.com,REJECT,extended-matching
+DOMAIN,p66-ad.adkwai.com,REJECT,extended-matching
+DOMAIN,pagead2.googleadservices.com,REJECT,extended-matching
+DOMAIN,pagead2.googlesyndication.com,REJECT,extended-matching
+DOMAIN,pangolin-sdk-toutiao-b.com,REJECT,extended-matching
+DOMAIN,pgdt.gtimg.cn,REJECT,extended-matching
+DOMAIN,pgdt.ugdtimg.com,REJECT,extended-matching
+DOMAIN,pglstatp-toutiao.com,REJECT,extended-matching
+DOMAIN,pixon.ads-pixiv.net,REJECT,extended-matching
+DOMAIN,public.gdtimg.com,REJECT,extended-matching
+DOMAIN,q.i.gdt.qq.com,REJECT,extended-matching
+DOMAIN,qzs.gdtimg.com,REJECT,extended-matching
+DOMAIN,res1.applovin.com,REJECT,extended-matching
+DOMAIN,review.gdtimg.com,REJECT,extended-matching
+DOMAIN,rpt.gdt.qq.com,REJECT,extended-matching
+DOMAIN,rt.applovin.com,REJECT,extended-matching
+DOMAIN,rt.applvn.com,REJECT,extended-matching
+DOMAIN,s.amazon-adsystem.com,REJECT,extended-matching
+DOMAIN,s8t.teads.tv,REJECT,extended-matching
+DOMAIN,samsungads.com,REJECT,extended-matching
+DOMAIN,sdk.ad.smaato.net,REJECT,extended-matching
+DOMAIN,sdk.adx.adwangmai.com,REJECT,extended-matching
+DOMAIN,sdk.aqyad.com,REJECT,extended-matching
+DOMAIN,sdk.beizi.biz,REJECT,extended-matching
+DOMAIN,sdk.cferw.com,REJECT,extended-matching
+DOMAIN,sdk.hzsanjiaomao.com,REJECT,extended-matching
+DOMAIN,sdk.markmedia.com.cn,REJECT,extended-matching
+DOMAIN,sdk.mobads.adwangmai.com,REJECT,extended-matching
+DOMAIN,sdkconfig.ad.intl.xiaomi.com,REJECT,extended-matching
+DOMAIN,sdkconfig.ad.xiaomi.com,REJECT,extended-matching
+DOMAIN,securepubads.g.doubleclick.net,REJECT,extended-matching
+DOMAIN,sf16-static.i18n-pglstatp.com,REJECT,extended-matching
+DOMAIN,sf3-fe-tos.pglstatp-toutiao.com,REJECT,extended-matching
+DOMAIN,sigmob.com,REJECT,extended-matching
+DOMAIN,sms.ads.oppomobile.com,REJECT,extended-matching
+DOMAIN,static.ads-twitter.com,REJECT,extended-matching
+DOMAIN,stg-data.ads.heytapmobi.com,REJECT,extended-matching
+DOMAIN,supply.inmobicdn.net,REJECT,extended-matching
+DOMAIN,t-adx.52qumao.com,REJECT,extended-matching
+DOMAIN,t.applovin.com,REJECT,extended-matching
+DOMAIN,t.teads.tv,REJECT,extended-matching
+DOMAIN,t1.teads.tv,REJECT,extended-matching
+DOMAIN,target.ads.jihuoniao.com,REJECT,extended-matching
+DOMAIN,tk.anythinktech.com,REJECT,extended-matching
+DOMAIN,tpc.googlesyndication-cn.com,REJECT,extended-matching
+DOMAIN,tpc.googlesyndication.com,REJECT,extended-matching
+DOMAIN,tr-asia.adsmoloco.com,REJECT,extended-matching
+DOMAIN,tx-ad.a.yximgs.com,REJECT,extended-matching
+DOMAIN,uapi.ads.heytapmobi.com,REJECT,extended-matching
+DOMAIN,v.adx.hubcloud.com.cn,REJECT,extended-matching
+DOMAIN,v1-ad.video.yximgs.com,REJECT,extended-matching
+DOMAIN,v2-ad.video.yximgs.com,REJECT,extended-matching
+DOMAIN,v2.gdt.qq.com,REJECT,extended-matching
+DOMAIN,v2mi.gdt.qq.com,REJECT,extended-matching
+DOMAIN,v3-ad.video.yximgs.com,REJECT,extended-matching
+DOMAIN,v3.gdt.qq.com,REJECT,extended-matching
+DOMAIN,video-ad.sm.cn,REJECT,extended-matching
+DOMAIN,vungle.com,REJECT,extended-matching
+DOMAIN,webview.unityads.unity3d.com,REJECT,extended-matching
+DOMAIN,widgets.outbrain.com,REJECT,extended-matching
+DOMAIN,wildcard.moatads.com.edgekey.net,REJECT,extended-matching
+DOMAIN,win.gdt.qq.com,REJECT,extended-matching
+DOMAIN,wv.inner-active.mobi,REJECT,extended-matching
+DOMAIN,wxsnsad.tc.qq.com,REJECT,extended-matching
+DOMAIN,xc.gdt.qq.com,REJECT,extended-matching
+DOMAIN,yk-ssp-ad.cp31.ott.cibntv.net,REJECT,extended-matching
+DOMAIN,yk-ssp.ad.youku.com,REJECT,extended-matching
+DOMAIN,zeus.ad.xiaomi.com,REJECT,extended-matching
+DOMAIN,zjres-ad.kajicam.com,REJECT,extended-matching
+
+[URL Rewrite]
+# 微博轻享版 / 国际版
+# 1. 搜索框默认词/推广推荐词
+^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?.*a=get_searching_info - reject-dict
+
+# 2. 国际版通用广告配置接口（阻断 pos=3/8/13/18 拼多多/牙黄等本地注入广告源）
+^https?:\/\/api\.weibo\.cn\/2\/ad\/ - reject-dict
+
+# iFansClub ADBlock
+^https?://a\.qiumibao\.com/activities/config\.php(?:\?.*)?$ reject
+^https?://a\.qiumibao\.com/ios/config/\?version_code= reject-200
+^http://(?:118\.178\.168\.156|47\.111\.8\.123):8091/allOne\.php\?ad_name=[^&#]+(?:&|$) reject
+^https?://amap-aos-info-nogw\.amap\.com/ws/aos/alimama(?:[/?#]|$) reject-200
+^https?://(?:[A-Za-z0-9-]+\.)+amap\.com/ws/aos/alimama/splash_screen(?:[/?#]|$) reject-200
+^https?://(?:[A-Za-z0-9-]+\.)+amap\.com/ws/asa/ads_attribution(?:[/?#]|$) reject
+^https?://optimus-ads\.amap\.com/uploadimg/[A-Za-z0-9_-]+\.gif(?:[?#]|$) reject-img
+^https?://(?:[A-Za-z0-9-]+\.)+amap\.com/v\d+/ai_rec(?:[/?#]|$) reject-dict
+^https?://(?:[A-Za-z0-9-]+\.)+amap\.com/ws/shield/scene/recommend(?:[/?#]|$) reject-dict
+^https?://sdk\.1rtb\.net/sdk/req_ad(?:\?|$) reject-200
+^https?://mobads\.baidu\.com/cpro/ui/mads\.php reject-200
+^https://mi\.gdt\.qq\.com/gdt_mview\.fcg reject-200
+^https://open\.e\.kuaishou\.com/rest/e/v3/open/univ reject-200
+^https?://api-access\.pangolin-sdk-toutiao(?:1)?\.com/api/ad/ reject-200
+^https?://adx(?:-cn)?\.anythinktech\.com/bid reject-200
+^https?://hc-ssp\.sm\.cn(?:/|$) reject-200
+^https?://app\.58\.com/api/home/(?:advertising|appadv)(?:/|\?|$) reject-200
+^https?://app\.58\.com/api/home/invite/popupAdv(?:/|\?|$) reject-200
+^https?://api-new\.app\.acfun\.cn/rest/app/flash/screen/ reject-200
+^https?://acs\.m\.taobao\.com/gw/mtop\.alibaba\.advertisementservice\.getadv/ reject-200
+^https?://acs\.m\.taobao\.com/gw/mtop\.alibaba\.cbu\.app\.homepage\.startup(?:/|\?|$) reject-200
+^https?://cn-acs\.m\.cainiao\.com/gw/mtop\.cainiao\.guoguo\.nbnetflow\.ads\.(?:show|mshow)\.cn/ reject-200
+^https?://acs\.m\.taobao\.com/gw/mtop\.damai\.wireless\.home\.welcome(?:/|\?|$) reject-200
+^https?://acs\.m\.taobao\.com/gw/mtop\.damai\.mec\.popup\.get(?:/|\?|$) reject-200
+^https?://acs\.m\.taobao\.com/gw/mtop\.fliggy\.crm\.screen\.(?:allresource|availablesplashstrategies)(?:/|\?|$) reject-200
+^https?://guide-acs\.m\.taobao\.com/gw/mtop\.taobao\.wireless\.home\.splash\.awesome\.get(?:/|\?|$) reject-200
+^https?://tiebac\.baidu\.com/c/f/ad/getFeedAd(?:\?|$) reject-dict
+^https?://mime\.baidu\.com/v\d+/IosStart/getStartInfo(?:\?|$) reject-dict
+^https?://mime\.baidu\.com/v\d+/activity/advertisement(?:\?|$) reject-dict
+^https?://appwk\.baidu\.com/xpage/interface/wknaad(?:\?|$) reject-dict
+^https?://pan\.baidu\.com/rest/2\.0/pcs/ad(?:\?|$) reject-dict
+^https?://pan\.baidu\.com/act/api/activityentry(?:\?|$) reject-dict
+^https?://newclient\.map\.baidu\.com/client/crossmarketing(?:\?|$) reject-dict
+^https?://manga\.bilibili\.com/twirp/comic\.v\d+\.Comic/Flash(?:\?|$) reject-dict
+^https?://app-gw\.csdn\.net/silkroad-api/api/v\d+/assemble/list/pub/channel/app_open_screen_ad(?:\?|$) reject-dict
+^https?://api\.dangdang\.com/mapi\d+/mobile/init(?:\?|$) reject-dict
+^https?://mapi\.dangdang\.com/index\.php\?action=init(?:&|$) reject-dict
+^https?://e\.dangdang\.com/.+getDeviceStartPage reject-dict
+^https?://api\.douban\.com/v2/app_ads/splash(?:\?|$) reject-dict
+^https?://api\.douban\.com/.+/common_ads\? reject-dict
+^https?://rtbapi\.douyucdn\.cn/japi/sign/app/getinfo(?:\?|$) reject-dict
+^https?://res\.xiaojukeji\.com/resapi/activity/(?:mget|getRuled|getPreload|getPasMultiNotices)(?:\?|$) reject-dict
+^https?://elemecdn\.com/.+/sitemap(?:\?|$) reject-200
+^https?://jdread-api\.jd\.com/jdread/api/(?:channel/module/opens|popup)(?:\?|$) reject-dict
+^https?://api\.m\.jd\.com/client\.action\?functionId=(?:start|queryMaterialAdverts|home_launchConfig)(?:&|$) reject-dict
+^https?://(?:bdsp-x|dsp-x)\.jd\.com/adx/ reject-200
+^https?://router-app-api\.jdcloud\.com/v\d+/board/routerAppSplash(?:\?|$) reject-dict
+^https?://lop-proxy\.jd\.com/queryAppHomePageMarketingRecommendRuleConfigInfo(?:\?|$) reject-dict
+^https?://api\.smart\.jd\.com/c/service/getLoadingLinks(?:\?|$) reject-dict
+^https?://res\.kfc\.com\.cn/advertisement/ reject-200
+^https?://dynamicad\.kfc\.com\.cn/api/app5/homepage/ai/popup(?:\?|$) reject-dict
+^https?://peisongapi\.meituan\.com/client/getInitiateImage(?:\?|$) reject-dict
+^https?://img\.meituan\.net/(?:adunion|display|midas)/\w+\.(?:gif|jpg|jpg\.webp)$ reject-img
+^https?://(?:s3plus|flowplus)\.meituan\.net/v\d+/\w+/linglong/\w+\.(?:gif|jpg|mp4) reject-200
+^https?://p\d+\.meituan\.net/(?:bizad|wmbanner)/\w+\.jpg reject-img
+^https?://interface(?:3)?\.music\.163\.com/e?api/ad/(?:loading/(?:get|current)|get)(?:\?|$) reject-dict
+^https?://interface(?:3)?\.music\.163\.com/e?api/link/(?:position|scene)/show/resource(?:\?|$) reject-dict
+^https?://api\.(?:pinduoduo|yangkeduo)\.com/api/cappuccino/splash(?:\?|$) reject-dict
+^https?://ccsp-egmas\.sf-express\.com/cx-app-base/base/app/ad/queryAdImages(?:\?|$) reject-dict
+^https?://shopic\.sf-express\.com/crm/mobile/common/flashscreen(?:\?|$) reject-dict
+^https?://ucmp\.sf-express\.com/proxy/operation-platform/info-flow-adver/query(?:\?|$) reject-dict
+^https?://ma-adx\.ctrip\.com/_ma\.gif(?:\?|$) reject-img
+^https?://m\.ctrip\.com/restapi/soa2/\d+/scjson/tripAds(?:\?|$) reject-dict
+^https?://homefront\.qunar\.com/front/splash/ad(?:\?|$) reject-dict
+^https?://client\.qunar\.com/pitcher-proxy\?qrt=p_splashAd(?:&|$) reject-dict
+^https?://r\.inews\.qq\.com/(?:adsBlacklist|getFullScreenPic|getBannerAds|getSplash)(?:\?|$) reject-dict
+^https?://api\.weibo\.cn/\d+/ad/preload(?:\?|$) reject-dict
+^https?://boot\.biz\.weibo\.com/v\d+/ad/(?:preload|realtime)(?:\?|$) reject-dict
+^https?://m?api\.weibo\.(?:cn|com)/\d+/ad/weibointl\? reject-dict
+^https?://[a-z]+\.xiaohongshu\.com/api/sns/v\d+/system_service/splash(?:\?|$) reject-dict
+^https?://[a-z]+\.xiaohongshu\.com/api/sns/v\d+/(?:tag/)?ads(?:\?|$) reject-dict
+^https?://[a-z]+\.xiaohongshu\.com/api/sns/v\d+/search/notes/recommend_info\? reject-dict
+^https?://(?:adse\.wsa|adse|adbehavior|xdcs-collector)\.ximalaya\.com/ reject-200
+^https?://[^/]+\.ximalaya\.com/api/v\d+/adRealTime(?:\?|$) reject-dict
+^https?://[^/]+\.ximalaya\.com/ting/(?:loading|feed|home)(?:\?|$) reject-dict
+^https?://api\.zhihu\.com/commercial_api(?:/|\?|$) reject-dict
+^https?://api\.zhihu\.com/bazaar/float_window(?:\?|$) reject-dict
+^https?://api\.zhihu\.com/api/v4/ecom_data/config(?:\?|$) reject-dict
+
+# iFansClub YouTube 独立广告请求
+^https?://(?:www|s)\.youtube\.com/api/stats/ads _ reject-200
+^https?://(?:www|s)\.youtube\.com/(?:pagead|ptracking) _ reject-200
+^https?://s\.youtube\.com/api/stats/qoe\?adcontext _ reject-200
+
+[Body Rewrite]
+# 微博轻享版 / 国际版
+# 1. 时间线去广告（全面覆盖热门流、关注流 friends/ 与 friends_、分组流、话题流）
+http-response-jq ^https?:\/\/api\.weibo\.cn\/2\/(statuses\/(unread_)?(hot_|friends[\/_]|container_)?timeline|groups\/timeline) 'def promo_label: IN("广告", "廣告", "热推", "熱推", "推荐", "推薦", "荐读", "薦讀"); def promoted: if type != "object" then false else (.promotion.type == "ad") or (.page_info.actionlog.source == "ad") or (.mblogtypename? | promo_label) or (.adType? | promo_label) or (.ad_marked == true) or (.is_ad == true) or (.is_ad == 1) or (.card_type == 19) or (.content_auth_info.content_auth_title? | promo_label) or (if (.tag_struct | type) == "array" then any(.tag_struct[]; .tag_name? | promo_label) else false end) end; def clean_card: if type == "object" and (.card_group | type) == "array" then .card_group |= map(select(((promoted) or (.mblog | promoted)) | not) | clean_card) else . end; del(.ad, .advertises, .trends, .ad_version_2_weibo) | if (.statuses | type) == "array" then .statuses |= map(select(promoted | not)) end | if (.cards | type) == "array" then .cards |= map(select(((promoted) or (.mblog | promoted)) | not) | clean_card) end'
+
+# 2. 开屏广告兜底空化与插入槽位清空（全面清空 normal/search/video/hot/comment 各场景插入位置，并关闭 CYT/广点通）
+http-response-jq ^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?.*a=get_coopen_ads '.data |= . + {"ad_list":[],"pic_ad":[],"gdt_video_ad_ios":[],"display_ad":0,"ad_ios_id":null,"app_ad_ios_id":null,"reserve_ad_ios_id":"","reserve_app_ad_ios_id":"","ad_duration":604800,"ad_cd_interval":604800,"ad_type":"","spare_ad_type":"","close_cyt":1,"uve_ad_scene_insert_normal":"","uve_ad_scene_insert_search":"","uve_ad_scene_insert_video":"","uve_ad_scene_insert_hot":"","uve_ad_scene_insert_comment":""}'
+
+# 3. App 启动全局配置置零（关停 timeline/hot/search/uve 广告总开关）
+http-response-jq ^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?.*a=open_app 'if .data then .data += {"new_ad_status_timeline":0,"new_ad_status_hot":0,"new_ad_status_search":0,"uve_feed_ad":0,"uve_feed_ad_block":1,"uve_hot_ad":0,"ad_cyt_regist_enable":0} end'
+
+# 4. 趋势/发现页布局优化
+http-response-jq ^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?.*a=trends 'if (.data | type) == "object" then del(.data.banner) | if .data.order then .data.order = ["search_topic"] end end'
+
+# 5. 搜索话题仅剔除顶部置顶推广
+http-response-jq ^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?.*a=search_topic 'if .data.search_topic.cards[0].type == "searchtop" then del(.data.search_topic.cards[0]) end'
+
+# 6. 个人中心去除 VIP 营销卡片
+http-response-jq ^https?:\/\/weibointl\.api\.weibo\.cn\/portal\.php\?.*a=user_center 'if .data.cards then .data.cards[].items |= map(select(.type != "personal_vip")) | .data.cards |= map(select((.items | length) > 0)) end'
+
+# 7. 评论区只过滤明确标记的广告，保留普通评论、推荐内容和未知类型。
+http-response-jq ^https?:\/\/api\.weibo\.cn\/2\/comments\/build_comments(?:\?|$) 'def explicit_ad: (.ad_marked == true) or (.is_ad == true) or (.is_ad == 1) or (.promotion.type == "ad") or (.mblogtypename? | IN("广告", "廣告")); if (.datas | type) == "array" then .datas |= map(select((.data | explicit_ad) | not)) end'
+
+[Script]
+# YouTube
+youtube.local.ad-break = type=http-request,pattern=^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/player\/ad_break(?:\?.*)?$,script-path=https://raw.githubusercontent.com/hyq58/WeiboIntl/main/scripts/youtube.local.request.js,argument="{"backgroundPlayback":true,"blockAds":true,"blockUpload":false,"blockShorts":false,"blockImmersive":false,"captionLang":"off","debug":false}"
+youtube.local.init = type=http-request,pattern=^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback(?:\?.*)?$,requires-body=1,max-size=-1,binary-body-mode=1,script-path=https://raw.githubusercontent.com/hyq58/WeiboIntl/main/scripts/youtube.local.request.js,argument="{"backgroundPlayback":true,"blockAds":true,"blockUpload":false,"blockShorts":false,"blockImmersive":false,"captionLang":"off","debug":false}"
+youtube.local.signals = type=http-request,pattern=^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/(browse|next|player|search)(?:\?.*)?$,requires-body=1,max-size=-1,binary-body-mode=1,script-path=https://raw.githubusercontent.com/hyq58/WeiboIntl/main/scripts/youtube.local.request.js,argument="{"backgroundPlayback":true,"blockAds":true,"blockUpload":false,"blockShorts":false,"blockImmersive":false,"captionLang":"off","debug":false}"
+youtube.local.log = type=http-request,pattern=^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/log_event(?:\?.*)?$,requires-body=1,max-size=-1,binary-body-mode=1,script-path=https://raw.githubusercontent.com/hyq58/WeiboIntl/main/scripts/youtube.local.request.js,argument="{"backgroundPlayback":true,"blockAds":true,"blockUpload":false,"blockShorts":false,"blockImmersive":false,"captionLang":"off","debug":false}"
+youtube.local.response = type=http-response,pattern=^https:\/\/youtubei\.googleapis\.com\/youtubei\/v1\/(browse|next|player|search|reel\/reel_watch_sequence|get_watch|log_event|config)(?:\?.*)?$,requires-body=1,max-size=-1,binary-body-mode=1,script-path=https://raw.githubusercontent.com/hyq58/WeiboIntl/main/scripts/youtube.local.response.js,argument="{"backgroundPlayback":true,"blockAds":true,"blockUpload":false,"blockShorts":false,"blockImmersive":false,"captionLang":"off","debug":false}"
+youtube.local.ump = type=http-response,pattern=^https?:\/\/[\w-]+\.googlevideo\.com\/initplayback(?:\?.*)?$,requires-body=1,max-size=-1,binary-body-mode=1,script-path=https://raw.githubusercontent.com/hyq58/WeiboIntl/main/scripts/youtube.local.response.js,argument="{"backgroundPlayback":true,"blockAds":true,"blockUpload":false,"blockShorts":false,"blockImmersive":false,"captionLang":"off","debug":false}"
+
+# iFansClub ADBlock
+amap_response=type=http-response,pattern=^https?://(?:[A-Za-z0-9-]+\.)+amap\.com/ws/(?:faas/amap-navigation/main-page|message/notice/list|msgbox/pull|promotion-web/resource|shield/(?:dsp/profile/index/nodefaas[^/?#]*|frogserver/aocs/updatable|search/(?:nearbyrec_smart|new_hotword))|valueadded/alimama/splash_screen)(?:[/?#]|$),requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/akiralereal/shadowrocket-toolkit/0936bba72921a671409a162895147aba320c5c02/scripts/amap.js
+baidu_map=type=http-response,pattern=^https://newclient\.map\.baidu\.com/client/phpui2/\?qt=ads,requires-body=1,binary-body-mode=1,max-size=0,script-path=https://raw.githubusercontent.com/akiralereal/shadowrocket-toolkit/0936bba72921a671409a162895147aba320c5c02/scripts/baidu-map.js
+qidian=type=http-response,pattern=^https://magev6\.if\.qidian\.com/argus/api/(?:v4/client/getsplashscreen|v2/(?:deeplink/geturl|dailyrecommend/getdailyrecommend)|v1/(?:client/getconf$|bookshelf/getHoverAdv|adv/getadvlistbatch\?positions=iOS_tab)),requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/akiralereal/shadowrocket-toolkit/0936bba72921a671409a162895147aba320c5c02/scripts/qidian.js
+tieba_json=type=http-response,pattern=^https?://(?:tiebac|c\.tieba)\.baidu\.com/(?:c/(?:s/sync|f/(?:ad/getSplashAd|frs/(?:page|threadlist|generalTabList)|pb/(?:pic)?page|excellent/personalized))$|tiebaads/commonbatch\?),requires-body=1,max-size=0,script-path=https://raw.githubusercontent.com/akiralereal/shadowrocket-toolkit/0936bba72921a671409a162895147aba320c5c02/scripts/tieba-json.js
+tieba_proto=type=http-response,pattern=^https?://(?:tiebac|c\.tieba)\.baidu\.com/c/(?:b/ad/adBid|f/(?:frs/(?:page|threadlist|generalTabList)|ad/getFeedAd|pb/page|excellent/personalized))\?cmd,requires-body=1,binary-body-mode=1,max-size=-1,script-path=https://raw.githubusercontent.com/akiralereal/shadowrocket-toolkit/0936bba72921a671409a162895147aba320c5c02/scripts/tieba-proto.js,argument=per_filter_video_thread=0
+
+[MITM]
+hostname = %APPEND% api.weibo.cn, weibointl.api.weibo.cn, *.googlevideo.com, youtubei.googleapis.com, *.amap.com, *.meituan.net, *.xiaohongshu.com, *.ximalaya.com, a.qiumibao.com, acs.m.taobao.com, adx-cn.anythinktech.com, adx.anythinktech.com, api-access.pangolin-sdk-toutiao.com, api-access.pangolin-sdk-toutiao1.com, api-new.app.acfun.cn, api.dangdang.com, api.douban.com, api.m.jd.com, api.pinduoduo.com, api.smart.jd.com, api.weibo.com, api.yangkeduo.com, api.zhihu.com, app-gw.csdn.net, app.58.com, appwk.baidu.com, bdsp-x.jd.com, boot.biz.weibo.com, c.tieba.baidu.com, ccsp-egmas.sf-express.com, client.qunar.com, cn-acs.m.cainiao.com, dsp-x.jd.com, dynamicad.kfc.com.cn, e.dangdang.com, elemecdn.com, guide-acs.m.taobao.com, hc-ssp.sm.cn, homefront.qunar.com, img.meituan.net, interface.music.163.com, interface3.music.163.com, jdread-api.jd.com, lop-proxy.jd.com, m.ctrip.com, ma-adx.ctrip.com, magev6.if.qidian.com, manga.bilibili.com, mapi.dangdang.com, mapi.weibo.cn, mapi.weibo.com, mi.gdt.qq.com, mime.baidu.com, mobads.baidu.com, newclient.map.baidu.com, open.e.kuaishou.com, pan.baidu.com, peisongapi.meituan.com, r.inews.qq.com, res.kfc.com.cn, res.xiaojukeji.com, router-app-api.jdcloud.com, rtbapi.douyucdn.cn, sdk.1rtb.net, shopic.sf-express.com, tiebac.baidu.com, ucmp.sf-express.com, s.youtube.com, www.youtube.com

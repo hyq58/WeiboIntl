@@ -43,3 +43,9 @@
 
 
 微博同日补充由本仓库依据接口字段自行编写 jq；参考入口为 QingRex/LoonKissSurge `913ec005f544221e6c56a7d0ecec81c4b3b914bb` 的微博轻享版模块及 zmqcherish/proxy-script `1d9f51bc9a0077d81998bb503ee6158ca83faa73`。未复制其脚本或整合模块，未将不明确许可的源码纳入 Apache YouTube 源码。
+
+## iFansClub 通用广告规则及 YouTube 补充规则
+
+- 来源为 akiralereal/shadowrocket-toolkit 的固定提交 [c5559d9](https://github.com/akiralereal/shadowrocket-toolkit/tree/c5559d9add4aa3e67f841e0380c10b7cd9644a64)。该部分遵循 [GNU GPL v3](licenses/iFansClub-GPL-3.0.txt)。上游提供 [模块源文件](https://github.com/akiralereal/shadowrocket-toolkit/tree/c5559d9add4aa3e67f841e0380c10b7cd9644a64/src)、[构建工具](https://github.com/akiralereal/shadowrocket-toolkit/tree/c5559d9add4aa3e67f841e0380c10b7cd9644a64/tools)及 [脚本与来源说明](https://github.com/akiralereal/shadowrocket-toolkit/tree/c5559d9add4aa3e67f841e0380c10b7cd9644a64/third_party)。
+- `AdFilterCombined.sgmodule` 以 [个人本机版](https://github.com/hyq58/WeiboIntl/blob/3611376aa5bf59eb73044feff26f17361291ffc6/AdFilterLocal.sgmodule)为基础，按段落附加固定版本的 [adblock.module](https://github.com/akiralereal/shadowrocket-toolkit/blob/c5559d9add4aa3e67f841e0380c10b7cd9644a64/dist/adblock.module)及 [youtube.module](https://github.com/akiralereal/shadowrocket-toolkit/blob/c5559d9add4aa3e67f841e0380c10b7cd9644a64/dist/youtube.module)中的三条独立广告请求拦截。合并时去重 MITM 主机名，添加 `s.youtube.com` 和 `www.youtube.com`。修改日期为 2026-11-16。
+- iFansClub 的脚本仅匹配其各自 App 的接口，按上游模块中的固定地址独立加载。个人 YouTube 脚本仍使用上述 Apache-2.0 等许可，既有微博部分沿用本文件的来源与许可说明。
