@@ -8,14 +8,14 @@ YouTube 的个人目标是 **后台播放，以及片头和播放过程中的广
 
 | 入口 | 内容 | 使用场景 |
 | --- | --- | --- |
-| [AdFilterCombined.sgmodule](https://raw.githubusercontent.com/hyq58/WeiboIntl/main/AdFilterCombined.sgmodule) | 微博、YouTube 本机处理及 iFansClub 通用拦截 | 希望把所有广告拦截合并到同一个模块 |
+| [AdFilterCombined.sgmodule](https://raw.githubusercontent.com/hyq58/WeiboIntl/main/AdFilterCombined.sgmodule) | 微博及 iFansClub 通用拦截 | 使用微博和通用广告过滤 |
 | [AdFilterLocal.sgmodule](https://raw.githubusercontent.com/hyq58/WeiboIntl/main/AdFilterLocal.sgmodule) | 微博＋YouTube 本机处理版 | 只需要微博与 YouTube |
 | [YouTubeLocal.sgmodule](https://raw.githubusercontent.com/hyq58/WeiboIntl/main/YouTubeLocal.sgmodule) | YouTube 本机处理版 | 只需要 YouTube，或分别排查 |
 | [WeiboIntl.sgmodule](https://raw.githubusercontent.com/hyq58/WeiboIntl/main/WeiboIntl.sgmodule) | 微博轻享版 / 国际版 | 单独使用微博，原地址保留 |
 
 **合并入口与独立入口二选一。** 使用 `AdFilterLocal` 时，停用旧 `AdFilter`、旧 `YouTubeNoAd`、独立 `YouTubeLocal` 和独立微博模块，避免同一请求被重复处理。也应停用配置中其他匹配 YouTube 接口的广告重写模块。
 
-使用 `AdFilterCombined` 时，只启用这一个广告模块。它包含 `AdFilterLocal` 的规则、iFansClub ADBlock，以及 iFansClub YouTube 中专门拦截广告页和广告统计的规则。播放响应仍统一由本机脚本处理。该模块按固定上游版本单独维护，来源见 [NOTICE.md](NOTICE.md)。
+使用 `AdFilterCombined` 时，只启用这一个广告模块。它包含微博规则及 iFansClub ADBlock。2026-11-21 已删除其中的 YouTube 专用过滤、后台播放改写、UDP 拒绝规则和 HTTPS 解密主机名。该模块按固定上游版本单独维护，来源见 [NOTICE.md](NOTICE.md)。
 
 在 Shadowrocket 的模块页面添加链接并启用。需要开启 HTTPS 解密（MITM），安装并信任小火箭生成的 CA 证书。模块附加所需主机名。首次启用或更新后，彻底退出并重新打开 YouTube，让它重新获取播放配置，再开始测试。
 
